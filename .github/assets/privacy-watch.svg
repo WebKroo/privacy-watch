@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="Privacy Watch shield">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0f2e45"/><stop offset="1" stop-color="#137a78"/></linearGradient></defs>
+<rect width="128" height="128" rx="32" fill="url(#bg)"/>
+<path d="M64 26 93 38v24c0 20-13 33-29 42C48 95 35 82 35 62V38Z" fill="#fff"/>
+<path d="m49 63 11 12 21-29" fill="none" stroke="#11606c" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
