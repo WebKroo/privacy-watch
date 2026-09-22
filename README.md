@@ -61,6 +61,23 @@ For automatic startup after sign-in, add Privacy Watch to macOS **Open at Login*
 
 ## How it works
 
+### In plain language
+
+Privacy Watch helps you look back at which apps your Mac reported using your microphone, camera, screen capture or location, and when.
+
+1. **Your Mac reports activity.** macOS creates reports when it notices apps using these features. Privacy Watch reads those reports while logging is on.
+2. **Privacy Watch keeps a history.** It saves the app name, type of activity and reported time in a folder you choose.
+3. **You review it when you want.** Search the history inside the app, open the saved file in a spreadsheet, or turn on alerts for microphone and camera starts.
+4. **You stay in control.** Choose which activity to save, pause logging, or quit to stop it. You can hide the app's icons and reopen it from Applications to see your history and settings.
+
+For example, when macOS reports FaceTime using your camera, Privacy Watch can add that activity to your history and show an alert if camera notifications are enabled.
+
+Privacy Watch does not record your conversations, take photos, copy your screen or save your location coordinates. It does not upload your activity history. If you choose a folder synced by iCloud or another service, that service may sync the saved files.
+
+It can only record what macOS reports while logging is running. It does not block other apps from using these features or fill in missing activity from sleep or pauses.
+
+### Under the hood
+
 ```mermaid
 flowchart LR
     A[Apple Control Center unified log] --> B[Protected log reader]
