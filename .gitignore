@@ -5,6 +5,8 @@ DerivedData/
 *.app/
 *.dSYM/
 *.zip
+*.dmg
+*.dmg.sha256
 # macOS metadata
 .DS_Store
 ._*

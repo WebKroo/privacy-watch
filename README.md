@@ -29,8 +29,8 @@ It runs quietly in the background, with optional menu-bar and Dock icons. There 
 
 ## Get started
 
-1. Obtain the app from this repository's [Releases](https://github.com/WebKroo/privacy-watch/releases), or [build it from source](docs/DEVELOPMENT.md).
-2. Put **Privacy Watch.app** in Applications and open that copy.
+1. [Download the Privacy Watch DMG](https://github.com/WebKroo/privacy-watch/releases/download/v1.4.1/Privacy-Watch-1.4.1.dmg), or [build it from source](docs/DEVELOPMENT.md). A ZIP alternative is available under [Releases](https://github.com/WebKroo/privacy-watch/releases).
+2. Open the DMG and drag **Privacy Watch.app** onto its **Applications** shortcut. Eject the disk image, then open Privacy Watch from Applications.
 3. Choose **Set Up & Start Logging** and approve the protected-log reader in the macOS administrator dialog.
 4. Choose your sensors, log folder and alerts in **Settings**. Test a sensor and confirm a fresh activity row.
 

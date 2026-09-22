@@ -33,3 +33,15 @@ Source and distribution packages contain no user event history. Earlier interfac
 ## GitHub project preparation
 
 The app implementation, test behavior and icon are unchanged from the validated 1.4.1 implementation. SPDX/copyright notices have been added to source and test files. Documentation has been reorganized, and the build script now includes linked help documents in future app bundles. Shell syntax and local documentation links were checked. The supplied 1.4.1 binary remains the previously validated signed build, with its original embedded README; no new runtime claims are made from documentation changes.
+
+## DMG packaging check — 2026-09-22
+
+A free, unnotarized `Privacy-Watch-1.4.1.dmg` was added to the existing release without rebuilding or re-signing the app. It packages the original release binary, an Applications shortcut, a Read Me First guide, offline documentation, AGPLv3 license and corresponding-source links.
+
+- Disk image integrity and its separate SHA-256 checksum passed.
+- The image mounted read-only. The packaged app and a copy extracted from the mounted image both passed strict nested signature verification.
+- File contents, executable permissions and symlink targets inside the app matched the original validated app. Both GUI and reader contain arm64 and x86_64 slices; bundle version is 1.4.1.
+- The Applications shortcut resolves to `/Applications`. Finder displayed all four expected installer items. The RTF instructions parsed successfully, and documentation/license/source files were present.
+- The temporary image was ejected after checking. The installed app, protected reader, login preferences and user event history were not changed.
+
+This verifies packaging and copying on the development Mac. It does not establish clean-Mac Gatekeeper approval, Intel execution, or additional OS compatibility. The previously listed runtime limitations still apply. The release tag and corresponding-source ZIP remain unchanged; DMG packaging scripts and newer documentation are on `main`.

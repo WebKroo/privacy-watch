@@ -58,6 +58,17 @@ shasum -a 256 /tmp/Privacy-Watch-release.zip
 ```
 
 5. Extract the ZIP outside a cloud folder and verify its signature again.
-6. Attach the ZIP and checksum to a GitHub release with installation notes, source commit, OS/hardware validation and the local-signing/notarization limitation. Include no personal logs, preferences, policy files or machine-specific updater scripts.
+6. Create a drag-to-Applications disk image from the verified app (no rebuild or re-signing):
+
+```sh
+bash Scripts/package-dmg.sh \
+  "${TMPDIR:-/tmp}/PrivacyWatch-local/Privacy Watch.app" \
+  /tmp/Privacy-Watch-release
+```
+
+This creates a compressed, read-only HFS+ DMG and an adjacent `.dmg.sha256` file. It includes an Applications shortcut, first-launch instructions, offline documentation, license and corresponding-source links. The default source ref is `v` plus the app's version; set `SOURCE_REF` to the actual corresponding published ref if different. The output must not already exist. The packaging script uses only tools included with macOS and does not install or launch the app.
+
+7. Mount the resulting DMG read-only, verify the packaged app signature, copy it to a temporary folder and verify the copied app again. Check that the Applications shortcut resolves to `/Applications`, both architecture slices are present, and the app contents match the validated input. Eject the test image afterward. This packaging check does not replace a clean-Mac installation test.
+8. Attach the DMG and its checksum to the GitHub release alongside the ZIP, corresponding source archive and existing ZIP checksums. Keep published asset names immutable. Include installation notes, source commit, OS/hardware validation and the local-signing/notarization limitation. Include no personal logs, preferences, policy files or machine-specific updater scripts.
 
 The GitHub documentation may evolve independently of the README embedded in a previously signed release. Rebuilding from current source produces a new local identity and requires approval; byte-for-byte identity with an older packaged app is not promised.
