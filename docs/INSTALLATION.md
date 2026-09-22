@@ -11,12 +11,12 @@ No paid Apple account or developer membership is needed. To run a packaged app, 
 
 ## Download and install the DMG
 
-1. Download **[Privacy-Watch-1.4.1.dmg](https://github.com/WebKroo/privacy-watch/releases/download/v1.4.1/Privacy-Watch-1.4.1.dmg)** from the official GitHub release. The neighboring `.dmg.sha256` file lets you verify its checksum.
+1. Download **[Privacy-Watch-1.5.0.dmg](https://github.com/WebKroo/privacy-watch/releases/download/v1.5.0/Privacy-Watch-1.5.0.dmg)** from the official GitHub release. The neighboring `.dmg.sha256` file lets you verify its checksum.
 2. Open the disk image. Drag **Privacy Watch.app** onto the **Applications** shortcut. Quit any running older copy before replacing it.
 3. Eject the Privacy Watch disk image and open **Privacy Watch** from Applications. Do not set up the protected reader while the app is still on the mounted disk image.
 4. Follow the first-launch steps below. Copying the app alone does not authorize the protected reader.
 
-The DMG includes the same app as the 1.4.1 ZIP, an Applications shortcut, a **Read Me First** guide and a **Documentation** folder with the AGPLv3 license and source links. It remains a free, locally signed, unnotarized release; a DMG does not remove Gatekeeper warnings.
+The DMG includes the same app as the 1.5.0 ZIP, an Applications shortcut, a **Read Me First** guide and a **Documentation** folder with the AGPLv3 license and source links. It remains a free, locally signed, unnotarized release; a DMG does not remove Gatekeeper warnings.
 
 If you prefer the ZIP, extract it and copy the app into Applications manually. Neither format includes personal activity logs or settings.
 

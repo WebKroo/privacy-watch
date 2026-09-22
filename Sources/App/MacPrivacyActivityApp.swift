@@ -104,6 +104,7 @@ import Carbon
         return .terminateLater
     }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
+    func applicationWillTerminate(_ notification: Notification) { AppModel.shared.updates.shutDown() }
 
     private func installMenus() {
         let main = NSMenu()
@@ -111,6 +112,7 @@ import Carbon
         add("About Privacy Watch", to: application, action: #selector(NSApplication.orderFrontStandardAboutPanel(_:)), target: NSApp)
         application.addItem(.separator())
         add("Settings…", to: application, action: #selector(openSettings(_:)), key: ",")
+        add("Check for Updates…", to: application, action: #selector(checkForUpdates(_:)))
         application.addItem(.separator())
         add("Hide Privacy Watch", to: application, action: #selector(NSApplication.hide(_:)), target: NSApp, key: "h")
         let hideOthers = add("Hide Others", to: application, action: #selector(NSApplication.hideOtherApplications(_:)), target: NSApp, key: "h")
@@ -158,7 +160,13 @@ import Carbon
         loggingItem?.title = model.busy ? model.status : (model.loggingRequested ? "Pause Logging" : model.startTitle)
     }
     func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
-        menuItem !== loggingItem || (!AppModel.shared.busy && !AppModel.shared.preview)
+        if menuItem.action == #selector(checkForUpdates(_:)) {
+            return AppModel.shared.updates.allowsChecks && !AppModel.shared.updates.isChecking
+        }
+        return menuItem !== loggingItem || (!AppModel.shared.busy && !AppModel.shared.preview)
+    }
+    @objc private func checkForUpdates(_ sender: Any?) {
+        AppModel.shared.showSettings(); AppModel.shared.updates.check()
     }
     @objc private func openSettings(_ sender: Any?) { AppModel.shared.showSettings() }
     @objc private func openActivity(_ sender: Any?) { AppModel.shared.selectedTab = 0; AppModel.shared.showActivity() }

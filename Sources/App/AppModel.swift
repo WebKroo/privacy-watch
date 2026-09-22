@@ -35,6 +35,7 @@ final class Receiver: NSObject, EventReceiverProtocol {
     @Published var notificationStatus = "Checking notification permission…"
     let preview = AppModel.demoRequested
     let defaults: UserDefaults
+    let updates: UpdateController
     let notifications = NotificationManager()
     // Transport seam for the isolated XPC lifecycle test; production always
     // uses the authenticated, installed Mach service below.
@@ -62,6 +63,7 @@ final class Receiver: NSObject, EventReceiverProtocol {
     private override init() {
         let demo = AppModel.demoRequested
         defaults = demo ? UserDefaults(suiteName: "com.norek.macprivacyactivity.local.preview")! : .standard
+        updates = UpdateController(defaults: defaults, allowsChecks: !demo)
         folder = URL(fileURLWithPath: defaults.string(forKey: "folder") ?? NSHomeDirectory() + "/Documents/Logs/Mac Privacy Activity Local", isDirectory: true)
         enabled = Set((defaults.array(forKey: "sensors") as? [String] ?? Sensor.allCases.map(\.rawValue)).compactMap(Sensor.init))
         notifyMic = defaults.object(forKey: "notifyMic") as? Bool ?? true
@@ -95,6 +97,7 @@ final class Receiver: NSObject, EventReceiverProtocol {
         }
     }
     func didLaunch(showWindow: Bool) {
+        updates.start()
         if showWindow { showActivity() }
         guard !preview, startLoggingOnLaunch else { return }
         // Only a fresh process launch resumes automatically. Opening the window
@@ -321,6 +324,7 @@ final class Receiver: NSObject, EventReceiverProtocol {
         }
     }
     func systemDidWake() {
+        updates.checkIfDue()
         guard !preview else { return }
         recovery.didWake(); cancelReconnect(); lastPong.renew()
         guard recovery.requested else { return }

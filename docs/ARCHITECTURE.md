@@ -21,7 +21,7 @@ Only complete `Active activity attributions changed to [...]` arrays are accepte
 
 The app renews a 12-second lease every three seconds. Liveness deadlines measure awake time, excluding system sleep and wall-clock adjustments. Disconnect, console-user change or lease expiry stops the reader. Stop terminates and reaps it before acknowledgement; launchd also owns its process group. An unused helper checks for idle exit every 15 awake seconds. Quit checks the local service has no running process and stays open with an error when shutdown cannot be confirmed. The original logger, if explicitly restored, runs independently and is not stopped when this GUI quits.
 
-CSV writing and notifications run as the normal user. Log files are mode 0600; unsafe symbolic/hard links, other owners and incompatible schemas are rejected. CSV quoting and formula-prefix protection are applied. A write error pauses collection. There is no automatic rotation/deletion; archive logs while paused. The app has no network feature, but a chosen iCloud-synced folder is still synced by macOS.
+CSV writing and notifications run as the normal user. Log files are mode 0600; unsafe symbolic/hard links, other owners and incompatible schemas are rejected. CSV quoting and formula-prefix protection are applied. A write error pauses collection. There is no automatic rotation/deletion; archive logs while paused. Optional release checks make a public GitHub request from the user-session app; no event data is attached. A chosen iCloud-synced folder is still synced by macOS.
 
 ## File locations
 
@@ -51,3 +51,11 @@ Explicit Pause/Quit clears intent before asynchronous cleanup. Approval, signatu
 - `Tests`: parser/storage tests, installer identity tests, recovery policy tests and isolated XPC integration tests.
 
 Apple references: [NSXPC signing requirements](https://developer.apple.com/documentation/foundation/nsxpcconnection/setcodesigningrequirement(_:)), [SMAppService](https://developer.apple.com/documentation/servicemanagement/smappservice), [workspace sleep](https://developer.apple.com/documentation/appkit/nsworkspace/willsleepnotification), [workspace wake](https://developer.apple.com/documentation/appkit/nsworkspace/didwakenotification), [uptime excludes sleep](https://developer.apple.com/documentation/dispatch/dispatchtime/uptimenanoseconds).
+
+## Update checks
+
+`Sources/Core/Updates.swift` contains numeric stable-version comparison, calendar scheduling, a bounded GitHub release client and an observable update controller. `AppModel` owns the controller; checks start independently of logging and re-evaluate on wake. A one-shot timer re-evaluates at least hourly while automatic checks are enabled, so clock changes do not leave a long-lived timer stranded. Preferences and timestamps persist across launches. Failed attempts count toward the schedule to avoid retry storms, while manual retries remain available.
+
+One request may be in flight. Turning automatic checks off cancels an automatic request, and generation checks prevent its delayed result from overwriting a later manual check. Preview mode performs no checks. Network errors do not enter the logging failure or collector recovery paths. The collector binary has no update code.
+
+The fixed endpoint supplies only the stable release tag and draft/prerelease flags. The app constructs a GitHub release-page URL from a strictly validated numeric tag instead of following API-provided links. Opening that page is a user action; downloads and installation remain manual. See the [privacy notes](PRIVACY.md#optional-github-update-checks).

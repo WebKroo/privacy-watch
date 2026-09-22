@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.5.0 — Optional GitHub update checks
+
+Adds an Updates section with an automatic-check switch, daily/weekly/monthly frequency, installed version, last successful check, next check and a Check for Updates button. A matching command is available in the Privacy Watch application menu. New releases appear in the activity window and menu panel with a link to their GitHub release and download.
+
+Automatic checks are off by default; weekly is the initial frequency. Checks run in the user app while it is open, catch up after launch/wake, and never download or install an update automatically. Failures stay separate from logging. The checker uses the fixed public GitHub release endpoint with no credentials, cookies, activity records or telemetry. The privacy guide now explains this optional network connection.
+
+The free build remains locally signed and unnotarized. Updating from 1.4.1 requires one administrator approval for the new app identity; existing settings and history are preserved.
+
 ## 1.4.1 — Sleep and connection recovery
 
 Corrects a sleep/wake bug: the old heartbeat checks used wall time, so sleep could exhaust the app's eight-second timeout and helper's twelve-second lease. The resulting failure permanently paused logging. Both deadlines now use awake monotonic time. The app observes workspace sleep/wake notifications, retires its reader at sleep, and opens a fresh authenticated session on wake. A late stop acknowledgement or callback from an old session cannot cancel the new session. Shutdown confirmation polls over awake time, covering sleep between acknowledgement and helper exit.

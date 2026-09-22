@@ -1,4 +1,25 @@
-# Validation — Privacy Watch 1.4.1
+# Validation — Privacy Watch 1.5.0
+
+Built on Apple Silicon/macOS 27 using Swift 6.4 Command Line Tools. This release adds optional update checks in the normal user-session app. Collector behavior, event parsing, CSV schema, notifications and logging recovery are unchanged.
+
+## Completed checks
+
+- Universal arm64 + x86_64 build passed, with strict nested signature verification.
+- Eight update-check groups passed: numeric version ordering and safe tags; daily/weekly/calendar-month and clock schedules; release decoding/draft/prerelease/rate-limit/size handling; manual checks while off, duplicate suppression and persisted state; wake catch-up, frequency changes and opt-out; offline failure and manual retry; automatic cancellation with stale-response isolation; preview isolation.
+- The real HTTPS release client successfully contacted the public GitHub endpoint and read the current v1.4.1 release. This test sent no credentials, sensor events, history or paths.
+- Eight existing core groups and eight recovery-policy groups passed.
+- Nine actual-AppModel anonymous-XPC integration checks passed. Tests do not use the installed protected reader.
+- Installer checks accepted the correct staged universal helper and rejected a different code hash.
+- The Updates section was inspected in the native preview: automatic checks off, Weekly selected, installed version 1.5.0, manual-check control and explanation. Preview mode remained offline.
+
+- Release archives passed integrity checks. The APFS DMG mounted read-only; its app and a copy extracted from it passed strict nested signature checks and matched the built app's files and executable permissions. The Applications shortcut resolved correctly.
+- The DMG uses APFS (compatible with the macOS 14 deployment target). An unpublished HFS+ packaging attempt added empty Finder metadata to an embedded SVG and failed verification; that image is not distributed.
+
+## Limits
+
+Calendar intervals and wake catch-up were tested with controlled clocks, not by leaving the app open for a day, week or month. No new overnight sleep, reboot, Intel execution or second-Mac installation test is claimed. The existing macOS log-source and local-signing limitations still apply. This build remains unnotarized, and its changed app identity needs administrator approval when installed.
+
+# Historical validation — Privacy Watch 1.4.1
 
 Built on Apple Silicon/macOS 27 with Swift 6.4 Command Line Tools. This release corrects sleep/wake and temporary reader-connection recovery. Sensor parsing, CSV schema, notification content, bundle identity and user preferences are retained.
 

@@ -35,3 +35,7 @@ The protected reader only reads a fixed Apple log source and emits minimal metad
 No paid developer membership is needed to build or run this edition. A macOS administrator must approve the protected reader for each new build and each receiving Mac. Local signing is not Developer ID signing or notarization, so installation has more friction than a notarized commercial app.
 
 See [coverage limits](PRIVACY.md#coverage-and-limits) and [verification steps](TROUBLESHOOTING.md#verify-after-setup-and-macos-updates) before relying on the record.
+
+## Choose when to check for updates
+
+Keep track of new versions without visiting GitHub repeatedly. Enable daily, weekly or monthly release checks, or leave them off and use Check for Updates when convenient. Privacy Watch shows available releases with a download link, while you decide when to install. Offline checks do not interrupt sensor logging, and activity history is never included in update requests.

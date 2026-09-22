@@ -48,3 +48,11 @@ sudo /usr/bin/log show --last 1h --style compact --info --predicate 'subsystem =
 ```
 
 Review and redact any diagnostics before sharing. The [validation record](../VALIDATION.md) distinguishes automated checks from physical sleep and second-Mac tests that remain to be performed.
+
+## Update checks
+
+If a check fails, confirm internet access and try Check for Updates again. GitHub can temporarily rate-limit requests. Automatic checks wait for the selected interval after each attempt; a manual retry remains available. The last successful check time does not advance on failure.
+
+Checks run only while Privacy Watch is open, including when its window and icons are hidden. Launching or waking the app catches up on an overdue automatic check. Automatic checks are off initially. Turning them off cancels an automatic request but still allows explicit manual checks. Preview mode never contacts GitHub.
+
+The checker considers the repository's latest published stable release, not source commits, draft releases or prereleases. It never installs anything. If a new release is reported, review its notes and compatibility before downloading. A local development build newer than the published version is already up to date.

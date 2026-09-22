@@ -61,6 +61,7 @@ struct PanelView: View {
             }
             LoggingButton(model: model, fullWidth: true)
                 .buttonStyle(.borderedProminent).tint(Color(red: 0.06, green: 0.46, blue: 0.44))
+            UpdateNotice(updates: model.updates, compact: true)
             Divider()
             HStack(spacing: 12) {
                 Button("Activity & Settings…", systemImage: "list.bullet.rectangle") { model.showActivity() }
@@ -110,6 +111,7 @@ struct ActivityView: View {
                 Spacer()
                 StatusPill(model: model)
             }.padding(20)
+            UpdateNotice(updates: model.updates).padding(.horizontal, 20)
             if let issue = model.issue {
                 HStack { Image(systemName: "exclamationmark.triangle"); Text(issue).textSelection(.enabled); Spacer(); Button("Dismiss") { model.issue = nil } }
                     .font(.caption).padding(12).background(Color.orange.opacity(0.12)).padding(.horizontal, 24).padding(.bottom, 12)
@@ -214,6 +216,7 @@ struct ActivityView: View {
                 Toggle("Start logging automatically when the app opens", isOn: $model.startLoggingOnLaunch)
                 Text("Add Privacy Watch to macOS Open at Login to start after sign-in. This setting applies on the next launch; Pause and Quit stop the current session.").font(.caption).foregroundStyle(.secondary)
             }
+            UpdateSettings(updates: model.updates)
             Section("Record sensor activity") {
                 ForEach(Sensor.allCases) { sensor in
                     Toggle(isOn: Binding(get: { model.enabled.contains(sensor) }, set: { model.toggle(sensor, value: $0) })) {
@@ -263,5 +266,66 @@ struct ActivityView: View {
     }
     func sensorColor(_ sensor: Sensor) -> Color {
         switch sensor { case .mic: return .orange; case .cam: return .green; case .scr: return .blue; case .loc: return .purple }
+    }
+}
+
+struct UpdateSettings: View {
+    @ObservedObject var updates: UpdateController
+    var body: some View {
+        Section("Updates") {
+            Toggle("Check for updates automatically", isOn: $updates.automaticChecks)
+                .disabled(!updates.allowsChecks)
+            Picker("Check frequency", selection: $updates.frequency) {
+                ForEach(UpdateFrequency.allCases) { Text($0.title).tag($0) }
+            }.disabled(!updates.automaticChecks || !updates.allowsChecks)
+            HStack {
+                Text("Installed version \(updates.installedVersion)").foregroundStyle(.secondary)
+                Spacer()
+                if updates.isChecking { ProgressView().controlSize(.small).accessibilityLabel("Checking for updates") }
+                Button(updates.isChecking ? "Checking…" : "Check for Updates") { updates.check() }
+                    .disabled(updates.isChecking || !updates.allowsChecks)
+            }
+            HStack {
+                Text(updates.message).foregroundStyle(updates.checkFailed ? Color.orange : Color.secondary)
+                    .textSelection(.enabled)
+                Spacer()
+                if let release = updates.availableRelease {
+                    Link("View Release & Download…", destination: release.pageURL)
+                }
+            }.font(.callout)
+            if let date = updates.lastChecked {
+                Text("Last checked: \(date.formatted(date: .abbreviated, time: .shortened))")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+            if let date = updates.nextCheck {
+                Text("Next check: \(date.formatted(date: .abbreviated, time: .shortened))")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
+            Text("Checks GitHub while Privacy Watch is running. Missed checks run after launch or wake. Activity logs stay on your Mac. Updates are downloaded and installed only when you choose.")
+                .font(.caption).foregroundStyle(.secondary)
+        }
+    }
+}
+
+struct UpdateNotice: View {
+    @ObservedObject var updates: UpdateController
+    var compact = false
+    var body: some View {
+        if let release = updates.availableRelease {
+            HStack(spacing: 8) {
+                Image(systemName: "arrow.down.circle").foregroundStyle(.teal)
+                if compact {
+                    Link("Version \(release.version.description) available…", destination: release.pageURL)
+                        .font(.caption)
+                    Spacer()
+                } else {
+                    Text("Privacy Watch \(release.version.description) is available.").font(.callout)
+                    Spacer()
+                    Link("View Release & Download…", destination: release.pageURL).font(.callout)
+                }
+            }.padding(compact ? 0 : 12)
+                .background(compact ? Color.clear : Color.teal.opacity(0.08), in: RoundedRectangle(cornerRadius: 8))
+                .padding(.bottom, compact ? 0 : 12)
+        }
     }
 }

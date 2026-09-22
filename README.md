@@ -6,7 +6,7 @@
 
 Privacy Watch is a free, native macOS app that keeps a searchable history of microphone, camera, screen capture and location activity reported by Apple Control Center. Review which applications appeared, get microphone and camera alerts, and save records in your own folder.
 
-It runs quietly in the background, with optional menu-bar and Dock icons. There is no app account, subscription, telemetry or built-in cloud service.
+It runs quietly in the background, with optional menu-bar and Dock icons. There is no app account, subscription, telemetry or built-in cloud service. Optional update checks contact GitHub for public release information; activity logs are never sent.
 
 [Get started](docs/INSTALLATION.md) · [User guide](docs/USER_GUIDE.md) · [Features and benefits](docs/FEATURES.md) · [Troubleshooting](docs/TROUBLESHOOTING.md)
 
@@ -25,18 +25,19 @@ It runs quietly in the background, with optional menu-bar and Dock icons. There 
 | Automatic launch and wake recovery | Resume collection when the app starts and recover after sleep or a temporary reader interruption. |
 | Explicit Pause and Quit | Stop observation when you choose; Quit waits for the reader to stop. |
 | Local processing | Keep activity records in the chosen folder without sending them to a service operated by the app. |
+| Optional update checks | Check GitHub daily, weekly or monthly, or check manually; choose when to download and install. |
 | Free local build | Run without a paid Apple Developer membership, full Xcode installation or recurring fee. |
 
 ## Get started
 
-1. [Download the Privacy Watch DMG](https://github.com/WebKroo/privacy-watch/releases/download/v1.4.1/Privacy-Watch-1.4.1.dmg), or [build it from source](docs/DEVELOPMENT.md). A ZIP alternative is available under [Releases](https://github.com/WebKroo/privacy-watch/releases).
+1. [Download the Privacy Watch DMG](https://github.com/WebKroo/privacy-watch/releases/download/v1.5.0/Privacy-Watch-1.5.0.dmg), or [build it from source](docs/DEVELOPMENT.md). A ZIP alternative is available under [Releases](https://github.com/WebKroo/privacy-watch/releases).
 2. Open the DMG and drag **Privacy Watch.app** onto its **Applications** shortcut. Eject the disk image, then open Privacy Watch from Applications.
 3. Choose **Set Up & Start Logging** and approve the protected-log reader in the macOS administrator dialog.
 4. Choose your sensors, log folder and alerts in **Settings**. Test a sensor and confirm a fresh activity row.
 
 For automatic startup after sign-in, add Privacy Watch to macOS **Open at Login** and keep **Start logging automatically when the app opens** enabled. Each receiving Mac needs its own setup approval and notification permission.
 
-**Current version: 1.4.1.** The app targets macOS 14 or later and builds for Apple Silicon and Intel. Runtime behavior was validated on Apple Silicon with macOS 27; other versions and Intel execution still require verification. This free build is locally signed and **not notarized**. Read the [installation guide](docs/INSTALLATION.md) before sharing or installing it.
+**Current version: 1.5.0.** The app targets macOS 14 or later and builds for Apple Silicon and Intel. Runtime behavior was validated on Apple Silicon with macOS 27; other versions and Intel execution still require verification. This free build is locally signed and **not notarized**. Read the [installation guide](docs/INSTALLATION.md) before sharing or installing it.
 
 ## How it works
 

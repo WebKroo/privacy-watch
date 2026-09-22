@@ -10,7 +10,17 @@ It does not record audio, video, screen contents or location coordinates. It doe
 
 The protected reader sends minimal event metadata to the app over authenticated local XPC. The normal user-session app filters selected categories, writes the chosen CSV and optional line-delimited JSON backup, displays recent rows, and submits selected microphone/camera alerts to macOS Notification Center.
 
-The app has no network feature, analytics, advertising, account login or automatic uploader. A folder managed by iCloud, Dropbox or another sync service may still be synced by that service. Notification previews can reveal app names and sensor activity on screen, depending on macOS settings.
+The app has no analytics, advertising, account login or activity uploader. Update checks are an optional network feature described below. A folder managed by iCloud, Dropbox or another sync service may still be synced by that service. Notification previews can reveal app names and sensor activity on screen, depending on macOS settings.
+
+## Optional GitHub update checks
+
+Automatic checks are off by default. Turning them on permits a public HTTPS request to `api.github.com/repos/WebKroo/privacy-watch/releases/latest` at the selected daily, weekly or monthly interval while the app is running. Check for Updates makes that same request on demand, including when automatic checks are off.
+
+GitHub receives the connection's IP address and normal request metadata, including a generic Privacy-Watch-Updater user agent. The request contains no activity logs, sensor events, application history, folder paths, account identifier or installed-version identifier. The checker has no GitHub token, uses an ephemeral session without cookies, credentials or a disk cache, rejects redirects, and reads at most 1 MiB of response data. The privileged reader does not participate in networking.
+
+Only stable, published releases are considered. Following View Release & Download opens the official repository in your browser; your browser then uses its own GitHub sign-in and privacy settings. The app never downloads, executes or installs update files automatically.
+
+The chosen frequency, switch, last attempt, last successful check and known newer release tag are saved locally. Turning automatic checks off cancels a pending automatic check; an explicitly requested manual check can still finish. No checks run while Privacy Watch is quit. A missed check happens when it next runs or wakes. A failed check waits for the chosen interval unless you retry manually.
 
 ## Local storage
 

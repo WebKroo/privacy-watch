@@ -39,3 +39,17 @@ The CSV has no built-in size limit, deletion schedule or rotation. Archive it wh
 - **Stop needs attention:** shutdown could not be confirmed. Keep the app open and follow [troubleshooting](TROUBLESHOOTING.md).
 
 A quiet source can be normal. Privacy Watch cannot infer sensor activity that macOS did not report, or activity that occurred during an observation gap.
+
+## Updates
+
+Open **Settings → Updates** to see the installed version and check status.
+
+- **Check for updates automatically:** off initially. Enable it to schedule checks while Privacy Watch is running.
+- **Check frequency:** Daily, Weekly or Monthly; Weekly is initially selected. Monthly uses calendar months.
+- **Check for Updates:** checks immediately, including when automatic checks are off. The same command appears under the **Privacy Watch** application menu while its window is open.
+- **Last checked:** the last successful response. **Next check:** the planned automatic check; sleep or quitting can delay it until the next wake or launch. Manual checks also reset the interval.
+- **View Release & Download…:** appears when a newer stable version is found. It opens the official GitHub release page so you can review changes and download the DMG. A notice also appears in the activity window and menu panel.
+
+Checks never pause logging or open your browser automatically. A failed check shows a message and leaves logging alone. Automatic attempts wait until the next selected interval after a failure; you can retry manually at any time. Updates are never downloaded or installed automatically. Quit before replacing the app and approve its updated protected reader when prompted.
+
+GitHub receives normal connection metadata, but no activity records or log paths. See [what update checks send](PRIVACY.md#optional-github-update-checks).

@@ -2,7 +2,7 @@
 
 ## Requirements
 
-Use macOS with Apple Command Line Tools and a compatible SDK. Version 1.4.1 was built using Swift 6.4 in Swift 5 language mode on Apple Silicon/macOS 27. Full Xcode, a signing team and third-party packages are not required. The deployment target is macOS 14; that target alone does not establish compatibility with Apple's undocumented log source on every OS release.
+Use macOS with Apple Command Line Tools and a compatible SDK. Version 1.5.0 was built using Swift 6.4 in Swift 5 language mode on Apple Silicon/macOS 27. Full Xcode, a signing team and third-party packages are not required. The deployment target is macOS 14; that target alone does not establish compatibility with Apple's undocumented log source on every OS release.
 
 ```sh
 xcode-select --install
@@ -12,6 +12,7 @@ From the repository root:
 
 ```sh
 bash Scripts/test.sh
+bash Scripts/test-updates.sh
 bash Scripts/test-recovery.sh
 bash Scripts/test-recovery-integration.sh
 bash Scripts/build-local.sh
@@ -24,6 +25,7 @@ The build creates a universal arm64 + x86_64 app under `${TMPDIR:-/tmp}/PrivacyW
 
 | Suite | What it exercises |
 |---|---|
+| `test-updates.sh` | Version ordering, release validation, calendar schedules, off/manual behavior, offline errors, persisted state, cancellation races and preview isolation. Pass `--live` to additionally check the public GitHub endpoint. |
 | `test.sh` | Parser and set differences, source/timestamp fidelity, CSV safety/storage, link rejection and notification time formatting. |
 | `test-recovery.sh` | Awake-time deadlines, sleep, retry limits and user intent. |
 | `test-recovery-integration.sh` | Actual AppModel with an anonymous native XPC fake collector, including wake/cleanup races, stale callbacks, reconnect and stop cancellation. |
@@ -66,7 +68,7 @@ bash Scripts/package-dmg.sh \
   /tmp/Privacy-Watch-release
 ```
 
-This creates a compressed, read-only HFS+ DMG and an adjacent `.dmg.sha256` file. It includes an Applications shortcut, first-launch instructions, offline documentation, license and corresponding-source links. The default source ref is `v` plus the app's version; set `SOURCE_REF` to the actual corresponding published ref if different. The output must not already exist. The packaging script uses only tools included with macOS and does not install or launch the app.
+This creates a compressed, read-only APFS DMG and an adjacent `.dmg.sha256` file. It includes an Applications shortcut, first-launch instructions, offline documentation, license and corresponding-source links. The default source ref is `v` plus the app's version; set `SOURCE_REF` to the actual corresponding published ref if different. The output must not already exist. The packaging script uses only tools included with macOS and does not install or launch the app.
 
 7. Mount the resulting DMG read-only, verify the packaged app signature, copy it to a temporary folder and verify the copied app again. Check that the Applications shortcut resolves to `/Applications`, both architecture slices are present, and the app contents match the validated input. Eject the test image afterward. This packaging check does not replace a clean-Mac installation test.
 8. Attach the DMG and its checksum to the GitHub release alongside the ZIP, corresponding source archive and existing ZIP checksums. Keep published asset names immutable. Include installation notes, source commit, OS/hardware validation and the local-signing/notarization limitation. Include no personal logs, preferences, policy files or machine-specific updater scripts.

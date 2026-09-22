@@ -50,7 +50,7 @@ The disk image contains no personal activity history or settings.
 EOF
 /usr/bin/codesign --verify --deep --strict "$VOLUME/Privacy Watch.app"
 /usr/bin/hdiutil create -volname "Privacy Watch $VERSION" -srcfolder "$VOLUME" \
-  -fs HFS+ -format UDZO -imagekey zlib-level=9 -nospotlight "$OUT/$NAME"
+  -fs APFS -format UDZO -imagekey zlib-level=9 -nospotlight "$OUT/$NAME"
 /usr/bin/hdiutil verify "$OUT/$NAME"
 (cd "$OUT" && /usr/bin/shasum -a 256 "$NAME" > "$NAME.sha256")
 printf '\nDisk image: %s\nChecksum: %s\n' "$OUT/$NAME" "$OUT/$NAME.sha256"
