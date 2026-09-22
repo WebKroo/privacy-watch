@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="216" viewBox="0 0 520 216" role="img" aria-labelledby="title desc">
+  <title id="title">Explore the source</title>
+  <desc id="desc">Download the Privacy Watch source ZIP to read, modify and build the app.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#172a3d"/>
+      <stop offset="1" stop-color="#29465e"/>
+    </linearGradient>
+    <linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#355c78"/>
+      <stop offset="1" stop-color="#3b7890"/>
+    </linearGradient>
+  </defs>
+  <rect x="1" y="1" width="518" height="214" rx="20" fill="url(#background)" stroke="#45627c"/>
+  <rect x="30" y="28" width="64" height="64" rx="17" fill="url(#tile)"/>
+  <path d="m53 49-12 11 12 11m18-22 12 11-12 11m-7-26-5 30" fill="none" stroke="#f2faff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="112" y="66" fill="#d2e8f7" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="15" font-weight="600" letter-spacing="1.5">FOR DEVELOPERS</text>
+  <circle cx="462" cy="60" r="23" fill="#ffffff" fill-opacity="0.08"/>
+  <path d="M462 48v20m-8-8 8 8 8-8m-20 11v5h24v-5" fill="none" stroke="#e1efff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="30" y="139" fill="#fff" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="34" font-weight="650">Explore the source</text>
+  <text x="30" y="177" fill="#d2e0ed" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="20">ZIP · Read, modify &amp; build</text>
+</svg>
