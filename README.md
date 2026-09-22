@@ -51,6 +51,8 @@ Choose the app to get up and running, or download the source to explore and buil
 
 **Install in three steps**
 
+**If macOS says “Privacy Watch Not Opened”:** this free release has not been notarized by Apple. If you trust this project's download, use **System Settings → Privacy & Security → Open Anyway** for Privacy Watch. BlockBlock users may also see a separate approval request. See the [opening instructions](docs/INSTALLATION.md#if-macos-or-blockblock-stops-the-app-from-opening).
+
 1. Open the DMG and drag **Privacy Watch.app** onto its **Applications** shortcut. Eject the disk image, then open Privacy Watch from Applications.
 2. Choose **Set Up & Start Logging** and approve the protected-log reader in the macOS administrator dialog.
 3. Choose your sensors, log folder and alerts in **Settings**. Test a sensor and confirm a fresh activity row.

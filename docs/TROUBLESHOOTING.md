@@ -1,5 +1,6 @@
 # Troubleshooting
 
+- **“Privacy Watch” Not Opened / Apple could not verify:** this free build is unnotarized. Review the [app-specific opening steps](INSTALLATION.md#if-macos-or-blockblock-stops-the-app-from-opening), including the separate BlockBlock alert if you use it. BlockBlock's notarization-mode approval may be requested again after reboot; this is distinct from protected-reader setup.
 - **Setup requires an administrator:** free software still needs permission to read this protected source. Ask the Mac's administrator to complete the macOS dialog; no Apple membership is required.
 - **Logging but no verified updates during deliberate sensor tests:** pause and inspect the source. A macOS format/redaction change needs a parser update. Preserve the original until the new reader passes live checks.
 - **Setup/signature/connectivity error:** use one installed copy; quit other copies, then Install / Repair Local Collector. A rebuild or architecture change needs a new approved policy. If setup partially completed, repair or restore the original.

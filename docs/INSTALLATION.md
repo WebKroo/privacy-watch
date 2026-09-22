@@ -14,11 +14,31 @@ No paid Apple account or developer membership is needed. To run a packaged app, 
 1. Download **[Privacy-Watch-1.5.0.dmg](https://github.com/WebKroo/privacy-watch/releases/download/v1.5.0/Privacy-Watch-1.5.0.dmg)** from the official GitHub release. The neighboring `.dmg.sha256` file lets you verify its checksum.
 2. Open the disk image. Drag **Privacy Watch.app** onto the **Applications** shortcut. Quit any running older copy before replacing it.
 3. Eject the Privacy Watch disk image and open **Privacy Watch** from Applications. Do not set up the protected reader while the app is still on the mounted disk image.
-4. Follow the first-launch steps below. Copying the app alone does not authorize the protected reader.
+4. If macOS or BlockBlock prevents the app from opening, follow the instructions below. Then complete the first-launch setup. Copying the app alone does not authorize the protected reader.
 
 The DMG includes the same app as the 1.5.0 ZIP, an Applications shortcut, a **Read Me First** guide and a **Documentation** folder with the AGPLv3 license and source links. It remains a free, locally signed, unnotarized release; a DMG does not remove Gatekeeper warnings.
 
 If you prefer the ZIP, extract it and copy the app into Applications manually. Neither format includes personal activity logs or settings.
+
+## If macOS or BlockBlock stops the app from opening
+
+The free release is locally signed but has **not been notarized by Apple**. Downloading a DMG and moving the app to Applications does not change that. The “Apple could not verify” warning means Apple has not verified this build; it is different from an alert that says malware was detected or the app is damaged.
+
+If you trust this project's download and choose to run it:
+
+1. In the **“Privacy Watch” Not Opened** dialog, choose **Done** to keep the app.
+2. Open **System Settings → Privacy & Security** and scroll to **Security**.
+3. Find the message naming **Privacy Watch**, choose **Open Anyway**, then confirm **Open** and authenticate if macOS asks. This creates an exception for this app. If the button has disappeared, try opening Privacy Watch again and return to Settings.
+4. If **BlockBlock** also reports that Privacy Watch is a **non-notarized process**, review the name and path. For the standard installation, it should name `/Applications/Privacy Watch.app/Contents/MacOS/MacPrivacyActivity`. Choose **Allow** only if you intend to run that copy. This is separate from macOS approval.
+5. Once the app opens, complete **Set Up & Start Logging** below. Its administrator approval authorizes the protected reader and is separate from both opening checks.
+
+BlockBlock's notarization-mode decisions are not saved across reboots or a restart of BlockBlock, so its alert can return even after macOS remembers your exception. Other BlockBlock alerts, such as installing the reader or adding a login item, describe different actions and should be reviewed separately. A managed Mac may prohibit exceptions.
+
+Keep the security tools enabled; this process does not require disabling Gatekeeper or BlockBlock. If a warning says the app is damaged or will harm your Mac, stop and investigate that specific warning rather than treating it as the missing-notarization prompt.
+
+References: [Apple's instructions for opening an unnotarized app](https://support.apple.com/en-us/102445) and [BlockBlock's alert and notarization-mode documentation](https://objective-see.org/products/blockblock.html).
+
+For distribution without these missing-notarization warnings, a future release needs **Developer ID signing and Apple notarization**. That requires access to the standard Apple Developer Program; an Enterprise membership is not needed for public distribution. See [Apple's Developer ID guide](https://developer.apple.com/developer-id/).
 
 ## First launch
 
@@ -43,7 +63,7 @@ Enable **Settings → Startup → Start logging automatically when the app opens
 
 ## Updating
 
-Quit the running app before replacing it. Reopen the installed copy and use **Settings → Advanced → Install / Repair Local Collector…** if requested. Local signatures pin the exact approved build, so an update needs administrator approval once; it does not need approval every reboot. Keep one installed copy and the same Applications path. Existing app identity, preferences and CSV names are retained.
+Quit the running app before replacing it. Reopen the installed copy and use **Settings → Advanced → Install / Repair Local Collector…** if requested. Local signatures pin the exact approved build, so an update needs administrator approval once for the protected reader; that reader setup does not repeat every reboot. Separate security software such as BlockBlock may ask again as described above. Keep one installed copy and the same Applications path. Existing app identity, preferences and CSV names are retained.
 
 Pause before changing folders. If macOS denies access after an update, choose the same folder again; this renews access without deleting history.
 
