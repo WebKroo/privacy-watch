@@ -28,7 +28,7 @@ Default folder: `~/Documents/Logs/Mac Privacy Activity Local`.
 
 - `Mac Privacy Activity.csv`: full saved event history; no automatic rotation or deletion.
 - `Mac Privacy Activity.log`: optional plain-text JSON event backup.
-- UserDefaults: preferences and a bookmark for the selected folder.
+- UserDefaults: preferences, a bookmark for the selected folder, and event IDs marking observation boundaries for each log folder's loaded history. These local markers prevent combined rows from pairing across known logging gaps; they contain no new sensor data and are not uploaded.
 - Administrator-owned helper policy: the approved local app identity and activation state.
 - Unified log: connection lifecycle messages; this diagnostic channel does not intentionally include sensor event records.
 

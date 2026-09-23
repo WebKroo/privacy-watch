@@ -35,6 +35,8 @@ func testNotificationClock() {
     XCTAssertEqual(NotificationTime.menuClock("2026-09-19 01:46:08.123456+0000"), "9:46:08 PM")
     XCTAssertEqual(NotificationTime.menuClock("2026-09-18 00:00:00"), "12:00:00 AM")
     XCTAssertEqual(NotificationTime.menuClock("unknown"), "unknown")
+    NSTimeZone.default = TimeZone(secondsFromGMT: 0)!
+    XCTAssertEqual(NotificationTime.menuClock("2026-09-19 01:46:08.123456+0000"), "1:46:08 AM")
 }
 let suite = CoreTests()
 let tests: [(String, () throws -> Void)] = [
@@ -47,7 +49,13 @@ let tests: [(String, () throws -> Void)] = [
     ("symbolic and hard link rejection", suite.testSymlinksAndHardlinksRejected),
     ("12-hour AM/PM, midnight, noon and source timezone", testNotificationClock),
     ("menu history filters before five-item limit; first seen and empty selections", suite.testMenuHistoryFiltersBeforeLimitingAndSeparatesFirstSeen),
-    ("menu history preferences persist separately from recording", suite.testMenuHistoryPreferencesPreserveEmptyChoicesAndRecordingSettings)
+    ("menu history preferences persist separately from recording", suite.testMenuHistoryPreferencesPreserveEmptyChoicesAndRecordingSettings),
+    ("paired activity matches apps and sensors before filtering", suite.testActivitySessionsPairByAppAndSensorBeforeFilters),
+    ("rapid transitions, duplicate events and truncated endpoints", suite.testActivitySessionsPreserveRapidTransitionsAndMissingEndpoints),
+    ("first-seen durations, time zones, midnight and invalid clocks", suite.testActivityDurationFirstSeenOffsetsAndInvalidTimes),
+    ("recording gaps and per-sensor continuity survive restart", suite.testActivityContinuityPreventsPairingAcrossGapsAndPersists),
+    ("five complete activities, endpoint search and local dates", suite.testActivitySessionsKeepFiveCompleteMatchesAndSearchEndpoints),
+    ("activity display preferences preserve recording choices", suite.testActivityDisplayPreferencesAreIndependent)
 ]
 for (name, run) in tests {
     let before = failures

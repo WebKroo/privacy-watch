@@ -1,4 +1,25 @@
-# Validation — Privacy Watch 1.6.1
+# Validation — Privacy Watch 1.7.0
+
+This release adds combined activity with durations and an independent compact-row preference. The CSV schema, protected collector and notification content remain the same. The normal-user model tracks observation boundaries for display; timestamp parsing/formatting now reuses a bounded per-thread cache that resets when the local time zone changes.
+
+## Completed checks
+
+- Universal arm64 + x86_64 compilation passed, with strict nested app/helper signature verification.
+- Installer verification accepted the expected universal helper and rejected a different code hash.
+
+- Sixteen core test groups passed. Added coverage includes application/sensor pairing, filtering before the five-row limit, search across both raw and displayed timestamps, same-timestamp transitions, duplicate starts/stops, first-seen lower bounds, missing endpoints, backwards/invalid timestamps, time-zone offsets, midnight, saved boundaries and independent display preferences. Existing parsing, CSV safety/storage, AM/PM and menu-filter checks passed, including a time-zone change after the formatter cache was warm.
+- Eleven actual-AppModel anonymous-XPC integration checks passed. The new checks observed a live start, paused through sleep, resumed with an unmatched stop, verified persisted boundaries and the original CSV events, and toggled sensor recording between endpoints. Existing wake/cleanup races, stale callbacks, reconnects and final shutdown checks also passed.
+- The integration harness uses a fake collector, temporary history and test-process preferences; it never connects to the installed protected reader. A sandboxed attempt could not exchange XPC replies. The run outside that command sandbox passed all eleven checks.
+- Nine update-check groups and eight recovery-policy groups passed.
+- Native sample-data previews verified separate and combined layouts, compact rows, date/AM-PM display, active/completed/unknown activity, first-seen minimum duration, complete pairs during search, the Ended filter, resetting the event/status filter when changing layouts, and saved display preferences after preview restart. The compact recent-history panel and its footer fit in the 340-point width.
+- A local unoptimized probe paired 2,000 distinct-timestamp events into 1,000 activities in about 3 ms and searched those activities with no matches in about 125 ms. These are local spot measurements, not a cross-device performance guarantee.
+- Local documentation links and whitespace checks passed.
+
+## Limits
+
+No live sensor, overnight, reboot, Intel runtime or second-Mac installation test was performed for this revision. The installed production app was not replaced or stopped. Pre-1.7 history and copied CSVs without local boundary preferences cannot establish continuity through old unrecorded gaps; incomplete recent history remains Unknown. The app is still locally signed and unnotarized, with one protected-reader approval needed for the new build.
+
+# Historical validation — Privacy Watch 1.6.1
 
 This release adds a native right-click/Control-click menu to the status icon. The collector, event parsing, storage, notifications, update checks and recovery logic are unchanged.
 

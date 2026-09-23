@@ -56,6 +56,14 @@ Apple references: [NSXPC signing requirements](https://developer.apple.com/docum
 
 `Sources/Core/MenuHistory.swift` filters the app's newest-first in-memory history and returns the first five matches. Sensor and event-kind preferences persist under separate `menuHistory.*` keys; recording and notifications never read them. `first-observed` is its own display/filter category rather than a confirmed start. The menu uses the same bounded history as the activity viewer; it does not read extra CSV data, request new collector permissions or fetch application icons from the network.
 
+## Combined activity presentation
+
+`Sources/Core/ActivityHistory.swift` projects the bounded newest-first event array into activities keyed by application bundle ID and sensor. It processes the original recorded order, preserving equal timestamps and rapid transitions. A new START supersedes an unmatched prior START. Pairing happens before UI filters and the menu limit; it does not rewrite the CSV, alter notifications or change the reader protocol.
+
+`ActivityContinuity` remembers boundaries before the next saved event for each affected sensor. A fresh process, collector session, stop, sleep/reconnect or recording toggle invalidates live-active IDs. Boundary IDs are saved in UserDefaults under a per-folder key and pruned to the loaded event window. Only starts observed in the current continuous session can display Active. A missing endpoint has no duration; a first-observed start supplies a lower bound. Invalid or backwards timestamps never produce a negative duration.
+
+Pre-1.7 histories and copied CSVs without their local preference metadata have no complete boundary record. Pairing can only use their available sequence; it cannot prove continuity through an unrecorded gap. The app documents this limitation instead of synthesizing missing events. Display preferences use `activity.rowStyle` and `activity.compactRows`, independent of recording and menu filters.
+
 ## Update checks
 
 `Sources/Core/Updates.swift` contains numeric stable-version comparison, calendar scheduling, a bounded GitHub release client and an observable update controller. `AppModel` owns the controller; checks start independently of logging and re-evaluate on wake. A one-shot timer re-evaluates at least hourly while automatic checks are enabled, so clock changes do not leave a long-lived timer stranded. Preferences and timestamps persist across launches. Failed attempts count toward the schedule to avoid retry storms, while manual retries remain available.

@@ -26,6 +26,11 @@ final class Receiver: NSObject, EventReceiverProtocol {
     @Published var enabled: Set<Sensor>
     @Published var menuHistory: MenuHistoryFilter { didSet { menuHistory.save(to: defaults) } }
     var menuEvents: [SensorEvent] { menuHistory.recentEvents(in: events) }
+    @Published var activityDisplay: ActivityDisplay { didSet { activityDisplay.save(to: defaults) } }
+    @Published private(set) var continuity = ActivityContinuity()
+    private var continuityFolder: URL?
+    var activitySessions: [ActivitySession] { ActivityHistory.sessions(in: events, continuity: continuity) }
+    var menuSessions: [ActivitySession] { Array(activitySessions.lazy.filter { $0.matches(self.menuHistory) }.prefix(MenuHistoryFilter.limit)) }
     @Published var notifyMic: Bool { didSet { defaults.set(notifyMic, forKey: "notifyMic") } }
     @Published var notifyCam: Bool { didSet { defaults.set(notifyCam, forKey: "notifyCam") } }
     @Published var backup: Bool { didSet { defaults.set(backup, forKey: "backup") } }
@@ -69,6 +74,7 @@ final class Receiver: NSObject, EventReceiverProtocol {
         folder = URL(fileURLWithPath: defaults.string(forKey: "folder") ?? NSHomeDirectory() + "/Documents/Logs/Mac Privacy Activity Local", isDirectory: true)
         enabled = Set((defaults.array(forKey: "sensors") as? [String] ?? Sensor.allCases.map(\.rawValue)).compactMap(Sensor.init))
         menuHistory = MenuHistoryFilter(defaults: defaults)
+        activityDisplay = ActivityDisplay(defaults: defaults)
         notifyMic = defaults.object(forKey: "notifyMic") as? Bool ?? true
         notifyCam = defaults.object(forKey: "notifyCam") as? Bool ?? true
         backup = defaults.bool(forKey: "backup")
@@ -97,6 +103,8 @@ final class Receiver: NSObject, EventReceiverProtocol {
             status = "Preview • sample events"
             notificationStatus = "Preview only — no notifications are sent."
             events = Self.sampleEvents
+            continuity.record(events[0])
+            continuity.record(events[3])
         }
     }
     func didLaunch(showWindow: Bool) {
@@ -143,6 +151,7 @@ final class Receiver: NSObject, EventReceiverProtocol {
         activityWindowOpen = false
     }
     func toggle(_ sensor: Sensor, value: Bool) {
+        if enabled.contains(sensor) != value { continuity.interrupt(sensors: [sensor]) }
         if value { enabled.insert(sensor) } else { enabled.remove(sensor) }
         defaults.set(enabled.map(\.rawValue), forKey: "sensors")
     }
@@ -170,7 +179,13 @@ final class Receiver: NSObject, EventReceiverProtocol {
         } catch { issue = error.localizedDescription }
     }
     func reloadHistory() {
-        do { events = try store.recentEvents() } catch { issue = error.localizedDescription }
+        do {
+            events = try store.recentEvents()
+            if continuityFolder != folder {
+                continuity = ActivityContinuity(defaults: defaults, folder: folder)
+                continuityFolder = folder
+            }
+        } catch { issue = error.localizedDescription }
     }
     func openCSV() {
         do { try store.prepare(backup: backup); if !NSWorkspace.shared.open(store.csvURL) { issue = "No app is configured to open CSV files." } }
@@ -218,6 +233,7 @@ final class Receiver: NSObject, EventReceiverProtocol {
         }
         guard let helperRequirement = ServiceIdentity.helperRequirement else { fail("Cannot verify the bundled local collector."); return }
         do { try store.prepare(backup: backup) } catch { fail(error.localizedDescription); return }
+        continuity.interrupt()
         issue = nil; busy = true; status = automatic ? "Reconnecting…" : "Starting…"
         let token = UUID(); generation = token
         // Keep callbacks from a retired session from affecting its replacement.
@@ -355,6 +371,8 @@ final class Receiver: NSObject, EventReceiverProtocol {
             do { try store.append(event, backup: backup) }
             catch { fail(error.localizedDescription); return }
             events.insert(event, at: 0); if events.count > 2000 { events.removeLast(events.count - 2000) }
+            continuity.record(event)
+            continuity.save(to: defaults, folder: folder, retaining: events)
             if event.action == .start && ((event.sensor == .mic && notifyMic) || (event.sensor == .cam && notifyCam)) { notifications.send(event) }
         }
     }
@@ -372,6 +390,7 @@ final class Receiver: NSObject, EventReceiverProtocol {
     }
     private func stopSession(completion: @escaping (Bool) -> Void) {
         guard !preview else { completion(true); return }
+        continuity.interrupt()
         if stopping { stopCompletions.append(completion); return }
         guard !(busy && connection == nil) else {
             issue = "Finish or cancel the administrator setup dialog before quitting."

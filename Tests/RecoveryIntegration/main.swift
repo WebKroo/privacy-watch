@@ -119,6 +119,8 @@ struct IntegrationFailure: Error, CustomStringConvertible {
         defer {
             server.close()
             try? FileManager.default.removeItem(at: folder)
+            UserDefaults.standard.removeObject(forKey: "activity.boundaries:" + folder.standardizedFileURL.path)
+            UserDefaults.standard.removeObject(forKey: "sensors")
         }
         do {
             try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
@@ -174,6 +176,11 @@ struct IntegrationFailure: Error, CustomStringConvertible {
             try check(model.lastSnapshot == "current-session" && model.events.isEmpty, "Retired-session events and snapshots must be ignored")
             pass("late failure, event and snapshot callbacks from a retired session are ignored")
 
+            let beforeGap = SensorEvent(timestamp: "2026-09-22 21:00:00.000000-0400", sensor: .mic, action: .start, bundleID: "example.continuity")
+            currentReceiver.receive(try JSONEncoder().encode([beforeGap]))
+            try await waitUntil("current session start is recorded") { model.events.contains { $0.id == beforeGap.id } }
+            try check(model.activitySessions.contains { $0.id == beforeGap.id && $0.isActive }, "A current observed START must be active")
+
             let startsBeforePause = server.startCount
             model.systemWillSleep()
             model.stop { _ in }
@@ -182,10 +189,32 @@ struct IntegrationFailure: Error, CustomStringConvertible {
             try await delay(1.2)
             try check(!model.loggingRequested && !model.running && server.startCount == startsBeforePause,
                       "Pause during sleep must veto wake's reconnect")
+            try check(!model.activitySessions.contains(where: \.isActive), "A pause must not leave historical activity marked active")
             pass("Pause during sleep cleanup remains paused after wake")
 
             model.start()
             try await waitUntil("manual resume connects") { model.running }
+            let afterGap = SensorEvent(timestamp: "2026-09-22 21:10:00.000000-0400", sensor: .mic, action: .stop, bundleID: "example.continuity")
+            let resumedReceiver = clientConnections.last!.exportedObject as! Receiver
+            resumedReceiver.receive(try JSONEncoder().encode([afterGap]))
+            try await waitUntil("post-gap stop is recorded") { model.events.contains { $0.id == afterGap.id } }
+            let gapRows = model.activitySessions.filter { $0.bundleID == "example.continuity" }
+            try check(gapRows.count == 2 && gapRows.allSatisfy { $0.duration == nil }, "The actual model must not pair activity across sleep or Pause")
+            let reloaded = ActivityContinuity(defaults: model.defaults, folder: folder)
+            try check(reloaded.breakBeforeEventIDs.contains(afterGap.id), "The gap boundary must survive app restart")
+            let recorded = try model.store.recentEvents()
+            try check(recorded.count == 2, "Display grouping must preserve the two original CSV events")
+            pass("actual model clears active rows and preserves unpaired endpoints across sleep, Pause and resume")
+
+            let sensorStart = SensorEvent(timestamp: "2026-09-22 21:11:00.000000-0400", sensor: .cam, action: .start, bundleID: "example.sensor-toggle")
+            let sensorStop = SensorEvent(timestamp: "2026-09-22 21:12:00.000000-0400", sensor: .cam, action: .stop, bundleID: "example.sensor-toggle")
+            resumedReceiver.receive(try JSONEncoder().encode([sensorStart]))
+            try await waitUntil("camera start is recorded") { model.events.contains { $0.id == sensorStart.id } }
+            model.toggle(.cam, value: false); model.toggle(.cam, value: true)
+            resumedReceiver.receive(try JSONEncoder().encode([sensorStop]))
+            try await waitUntil("camera stop is recorded after recording preference changes") { model.events.contains { $0.id == sensorStop.id } }
+            try check(model.activitySessions.filter { $0.bundleID == "example.sensor-toggle" }.count == 2, "Disabling a sensor must end pairing continuity for that sensor")
+            pass("changing a recording sensor breaks duration pairing without changing CSV events")
             let startsBeforeInterruption = server.startCount
             guard let interruptedSession = server.activeSession else { throw IntegrationFailure(description: "Missing active fake session") }
             interruptedSession.failStream()

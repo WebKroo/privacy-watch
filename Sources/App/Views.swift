@@ -3,7 +3,7 @@
 
 import SwiftUI
 
-private func sensorColor(_ sensor: Sensor) -> Color {
+func sensorColor(_ sensor: Sensor) -> Color {
     switch sensor { case .mic: return .orange; case .cam: return .green; case .scr: return .blue; case .loc: return .purple }
 }
 
@@ -88,14 +88,16 @@ struct PanelView: View {
     }
     private var recentActivity: some View {
         let events = model.menuEvents
+        let combined = model.activityDisplay.style == .combined
+        let sessions = combined ? model.menuSessions : []
         return VStack(alignment: .leading, spacing: 6) {
             HStack {
                 Text("Recent activity").font(.system(size: 11, weight: .semibold))
                 Spacer()
                 Text("Latest 5").font(.system(size: 10)).foregroundStyle(.secondary)
-                    .help("The five newest events matching your Menu bar history settings")
+                    .help(combined ? "The five newest matching activities, with starts and stops combined" : "The five newest events matching your Menu bar history settings")
             }.padding(.bottom, 2)
-            if events.isEmpty {
+            if combined ? sessions.isEmpty : events.isEmpty {
                 VStack(spacing: 7) {
                     Image(systemName: "clock").font(.title3).foregroundStyle(.tertiary)
                     Text(model.menuHistory.hasSelection ? "No matching activity yet" : "History is hidden")
@@ -105,9 +107,16 @@ struct PanelView: View {
                 }.frame(maxWidth: .infinity).padding(.vertical, 16).padding(.horizontal, 16)
             } else {
                 VStack(spacing: 0) {
-                    ForEach(events) { event in
-                        MenuHistoryRow(event: event)
-                        if event.id != events.last?.id { Divider().padding(.leading, 36) }
+                    if combined {
+                        ForEach(sessions) { session in
+                            MenuSessionRow(session: session, compact: model.activityDisplay.compact)
+                            if session.id != sessions.last?.id { Divider().padding(.leading, model.activityDisplay.compact ? 24 : 36) }
+                        }
+                    } else {
+                        ForEach(events) { event in
+                            MenuHistoryRow(event: event, compact: model.activityDisplay.compact)
+                            if event.id != events.last?.id { Divider().padding(.leading, model.activityDisplay.compact ? 24 : 36) }
+                        }
                     }
                 }
             }
@@ -116,14 +125,21 @@ struct PanelView: View {
 }
 private struct MenuHistoryRow: View {
     let event: SensorEvent
+    var compact = false
     private var appName: String { event.appName.isEmpty ? event.bundleID : event.appName }
     var body: some View {
         HStack(spacing: 9) {
             Image(systemName: event.sensor.symbol).font(.system(size: 12, weight: .medium))
-                .foregroundStyle(sensorColor(event.sensor)).frame(width: 27, height: 29)
-                .background(sensorColor(event.sensor).opacity(0.10), in: RoundedRectangle(cornerRadius: 6))
+                .foregroundStyle(sensorColor(event.sensor)).frame(width: compact ? 15 : 27, height: compact ? 18 : 29)
+                .background(sensorColor(event.sensor).opacity(compact ? 0 : 0.10), in: RoundedRectangle(cornerRadius: 6))
                 .accessibilityHidden(true)
-            VStack(alignment: .leading, spacing: 4) {
+            if compact {
+                Text(appName).font(.system(size: 12, weight: .medium)).lineLimit(1).truncationMode(.middle)
+                Spacer(minLength: 0)
+                Text(MenuEventKind(event).title).font(.system(size: 10)).foregroundStyle(.secondary).fixedSize()
+                Text(NotificationTime.menuClock(event.timestamp)).font(.system(size: 10)).monospacedDigit().foregroundStyle(.secondary).fixedSize()
+            } else {
+              VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 8) {
                     Text(appName).font(.system(size: 12, weight: .medium)).lineLimit(1).truncationMode(.middle)
                     Spacer(minLength: 0)
@@ -135,8 +151,9 @@ private struct MenuHistoryRow: View {
                     Spacer(minLength: 0)
                     Text(NotificationTime.menuDate(event.timestamp)).lineLimit(1).fixedSize()
                 }.font(.system(size: 10)).foregroundStyle(.secondary)
+              }
             }
-        }.padding(.vertical, 8)
+        }.padding(.vertical, compact ? 6 : 8)
             .help("\(appName) · \(event.bundleID)\n\(event.sensor.title) · \(MenuEventKind(event).title)\n\(event.timestamp)" + (event.observation == "first-observed" ? "\nAlready active when first observed; the actual start time may be earlier." : ""))
             .accessibilityElement(children: .ignore)
             .accessibilityLabel("\(appName), \(event.sensor.title), \(MenuEventKind(event).title), \(NotificationTime.display(event.timestamp))")
@@ -155,6 +172,7 @@ struct ActivityView: View {
     @ObservedObject var model: AppModel
     @StateObject private var filters = ActivityViewState()
     @FocusState private var searchFocused: Bool
+    private var combined: Bool { model.activityDisplay.style == .combined }
     static var today: String {
         let formatter = DateFormatter(); formatter.locale = Locale(identifier: "en_US_POSIX"); formatter.dateFormat = "yyyy-MM-dd"
         return formatter.string(from: Date())
@@ -167,6 +185,11 @@ struct ActivityView: View {
             (filters.actionFilter == "all" || event.action.rawValue == filters.actionFilter) &&
             (filters.dateFilter == "all" || event.timestamp.hasPrefix(today)) &&
             (query.isEmpty || [event.appName, event.bundleID, event.timestamp, event.sensor.title, event.action.rawValue, event.action == .start ? "Started" : "Stopped"].joined(separator: " ").localizedCaseInsensitiveContains(query))
+        }
+    }
+    var filteredSessions: [ActivitySession] {
+        model.activitySessions.filter {
+            $0.matches(search: filters.search, sensor: filters.sensorFilter, state: filters.actionFilter, todayOnly: filters.dateFilter == "today")
         }
     }
     var body: some View {
@@ -204,9 +227,14 @@ struct ActivityView: View {
                 Button("Quit Privacy Watch") { model.quit() }.disabled(model.busy)
             }.padding(.horizontal, 20).padding(.vertical, 12)
         }.frame(minWidth: 900, minHeight: 620).background(Color(nsColor: .windowBackgroundColor))
+            .onChange(of: model.activityDisplay.style) { _, _ in filters.actionFilter = "all" }
     }
     var activity: some View {
         let visibleEvents = filtered
+        let sessions = combined ? filteredSessions : []
+        let count = combined ? sessions.count : visibleEvents.count
+        let total = combined ? model.activitySessions.count : model.events.count
+        let noun = combined ? "activities" : "events"
         return VStack(spacing: 12) {
             HStack(spacing: 10) {
                 HStack(spacing: 6) {
@@ -223,11 +251,17 @@ struct ActivityView: View {
                     .overlay(RoundedRectangle(cornerRadius: 6).strokeBorder(searchFocused ? Color.accentColor.opacity(0.7) : Color.primary.opacity(0.12), lineWidth: 1))
                     .frame(minWidth: 230)
                 Picker("Sensor", selection: $filters.sensorFilter) { Text("All sensors").tag("all"); ForEach(Sensor.allCases) { Text($0.title).tag($0.rawValue) } }.frame(width: 150)
-                Picker("Event", selection: $filters.actionFilter) { Text("All events").tag("all"); Text("Started").tag("START"); Text("Stopped").tag("STOP") }.frame(width: 120)
+                Picker(combined ? "Activity status" : "Event", selection: $filters.actionFilter) {
+                    if combined {
+                        Text("All statuses").tag("all"); Text("Active").tag("active"); Text("Ended").tag("ended"); Text("Incomplete").tag("incomplete")
+                    } else {
+                        Text("All events").tag("all"); Text("Started").tag("START"); Text("Stopped").tag("STOP")
+                    }
+                }.frame(width: 120)
                 Picker("Date", selection: $filters.dateFilter) { Text("All dates").tag("all"); Text("Today").tag("today") }.frame(width: 120)
             }.labelsHidden().padding(.horizontal, 24)
             HStack(spacing: 12) {
-                Text(filters.isActive ? "\(visibleEvents.count) of \(model.events.count) events" : "\(visibleEvents.count) \(visibleEvents.count == 1 ? "event" : "events")")
+                Text(filters.isActive ? "\(count) of \(total) \(noun)" : "\(count) \(count == 1 ? (combined ? "activity" : "event") : noun)")
                     .font(.caption.weight(.medium)).monospacedDigit()
                 if filters.isActive { Button("Clear Filters") { filters.clear() }.font(.caption).buttonStyle(.borderless) }
                 Spacer()
@@ -236,28 +270,38 @@ struct ActivityView: View {
                 Button { if !model.preview { model.reloadHistory() } } label: { Image(systemName: "arrow.clockwise") }
                     .help("Reload history").accessibilityLabel("Reload history").disabled(model.preview)
             }.padding(.horizontal, 24)
-            Table(visibleEvents) {
+            Group {
+              if combined {
+                SessionTable(sessions: sessions, compact: model.activityDisplay.compact)
+              } else {
+               Table(visibleEvents) {
                 TableColumn("Timestamp") { Text($0.timestamp).font(.system(.caption, design: .monospaced)).textSelection(.enabled) }.width(min: 225, ideal: 265)
                 TableColumn("Sensor") { event in
                     Label { Text(event.sensor.title) } icon: { Image(systemName: event.sensor.symbol).foregroundStyle(sensorColor(event.sensor)) }
                 }.width(min: 115, ideal: 140)
                 TableColumn("Event") { event in
-                    Text(event.action == .start ? "Started" : "Stopped").font(.system(size: 10, weight: .semibold)).padding(.horizontal, 7).padding(.vertical, 4)
+                    Text(event.action == .start ? "Started" : "Stopped").font(.system(size: 10, weight: .semibold)).padding(.horizontal, 7).padding(.vertical, model.activityDisplay.compact ? 2 : 4)
                         .background(event.action == .start ? Color.teal.opacity(0.13) : Color.gray.opacity(0.12), in: Capsule())
                 }.width(80)
                 TableColumn("Application") { event in
+                  if model.activityDisplay.compact {
+                    Text(event.appName.isEmpty ? event.bundleID : event.appName).font(.system(size: 12, weight: .medium)).lineLimit(1).help(event.bundleID)
+                  } else {
                     VStack(alignment: .leading, spacing: 3) {
                         Text(event.appName).font(.system(size: 12, weight: .medium))
                         Text(event.bundleID).font(.system(size: 10)).foregroundStyle(.secondary)
                     }.padding(.vertical, 3)
+                  }
                 }.width(min: 170, ideal: 230)
                 TableColumn("Observation") { event in
                     Text(event.observation == "first-observed" ? "First seen" : "Change")
                         .font(.caption).foregroundStyle(.secondary)
                         .help(event.observation == "first-observed" ? "Already present in the first update after logging began; the actual start time may be earlier." : "An attribution change reported by Control Center.")
                 }.width(min: 90, ideal: 110)
+               }
+              }
             }.overlay {
-                if visibleEvents.isEmpty {
+                if count == 0 {
                     if filters.isActive {
                         ContentUnavailableView {
                             Label("No matching activity", systemImage: "magnifyingglass")
@@ -281,8 +325,20 @@ struct ActivityView: View {
                 Toggle("Keep Dock icon when window is closed", isOn: $model.showDockIcon)
                 Text("Closing the window keeps logging in the background. Open Privacy Watch from Applications to return, even with both icons hidden. Quit stops logging.").font(.caption).foregroundStyle(.secondary)
             }
+            Section("Activity display") {
+                Picker("Activity rows", selection: $model.activityDisplay.style) {
+                    ForEach(ActivityRowStyle.allCases) { Text($0.title).tag($0) }
+                }.pickerStyle(.segmented)
+                Toggle("Compact rows", isOn: $model.activityDisplay.compact)
+                Text("Combined activity keeps each app’s start and stop together and shows its duration. Compact rows use a single line. Both settings apply to the shield menu and All activity.")
+                    .font(.caption).foregroundStyle(.secondary)
+                if combined {
+                    Text("“≥” means the app was already active when first seen. “Unknown” means a start or stop was not recorded. Hover over a row for exact times. The CSV keeps every original event.")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+            }
             Section("Menu bar history") {
-                Text("Show the five newest matching events in the shield menu.").font(.callout)
+                Text(combined ? "Show the five newest matching activities in the shield menu." : "Show the five newest matching events in the shield menu.").font(.callout)
                 LazyVGrid(columns: [GridItem(.flexible(), alignment: .leading), GridItem(.flexible(), alignment: .leading)], alignment: .leading, spacing: 10) {
                     ForEach(Sensor.allCases) { sensor in
                         Toggle(isOn: Binding(get: { model.menuHistory.sensors.contains(sensor) }, set: {
@@ -300,6 +356,9 @@ struct ActivityView: View {
                 }.toggleStyle(.checkbox)
                 Text("These filters only change the menu history. Recording and notifications use their own settings below. “First seen” means an app was already using a sensor when logging observed it; its actual start time may be earlier.")
                     .font(.caption).foregroundStyle(.secondary)
+                if combined {
+                    Text("An activity appears when either its start or stop matches these event types. Both remain together in one row.").font(.caption).foregroundStyle(.secondary)
+                }
             }
             Section("Startup") {
                 Toggle("Start logging automatically when the app opens", isOn: $model.startLoggingOnLaunch)

@@ -10,6 +10,12 @@ Microphone, Camera, Screen Capture and Location can each be enabled or disabled.
 
 The native SwiftUI table shows timestamps, sensor, event, application, bundle ID and observation type. Search works across these fields; filter by sensor, event and Today. Clear Filters restores the complete recent view. The table loads up to 2,000 rows from the last 4 MiB for responsiveness, while the CSV retains the full saved history.
 
+## Read an activity once, with its duration
+
+Combine a start and stop into one row to follow each app's sensor use without scanning separate events. A current use is marked Active; its duration appears when it ends. The menu shows five activities, and All activity shows both times with search and status filters. Choose Compact rows to fit more on screen, or return to separate events at any time. These display choices leave your full CSV history intact.
+
+Missing endpoints stay Unknown, and activity already underway when first seen has a minimum observed duration marked with ≥. Known observation gaps break pairing; historical gaps from older versions cannot be recovered. See [duration meanings](USER_GUIDE.md#choose-how-activity-is-displayed).
+
 ## Notice microphone and camera use
 
 Separate start-alert switches let you choose microphone, camera or both. Notifications identify Privacy Watch, the attributed app and the sensor, with a local 12-hour AM/PM timestamp. They include one custom Dismiss action; clicking the body opens the CSV. macOS controls delivery, Focus, grouping and banner appearance. First-observed alerts identify their observation boundary.

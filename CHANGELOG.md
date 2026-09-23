@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.7.0 — Combined activity and compact rows
+
+Settings → Activity display now offers Separate events or Combined activity, plus an independent Compact rows switch. Both apply to the shield's five-item history and All activity. Existing installations keep their separate-event layout until changed.
+
+Combined activity matches each application's start and stop for the same sensor in one row. It shows Active for a currently observed use, then its duration when the stop arrives. The table includes start and stop times in AM/PM format, with local dates retained in compact rows. Search and filters apply after pairing, so filtering cannot remove half of a matched activity. Menu event filters match either endpoint before the five-item limit.
+
+First-seen activity uses “≥” for its observed duration; missing or invalid endpoints show Unknown. Pauses, sleep, reconnects, process launches and sensor-recording changes break pairing continuity. Small local preference records retain known boundaries for the loaded history. Historical gaps from older versions or an imported CSV cannot be reconstructed. The CSV and text backup retain their original event format; grouping changes only the display.
+
+The protected collector, notification behavior and manual update flow are unchanged. This free build remains locally signed and unnotarized; updating requires approving its new app identity once for the protected reader.
+
 ## 1.6.1 — Right-click shield menu
 
 Right-click or Control-click the menu-bar shield for See activity, Settings…, Hide icon and Quit Privacy Watch. A normal click continues to open recent history. Hiding the icon persists across launches and leaves logging running; reopen the app from Applications to restore it in Settings. Quit uses the existing confirmed reader shutdown and is disabled during a busy transition.
