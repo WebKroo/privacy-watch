@@ -1,4 +1,24 @@
-# Validation — Privacy Watch 1.5.0
+# Validation — Privacy Watch 1.6.0
+
+Built on Apple Silicon/macOS 27 using Swift 6.4 Command Line Tools. This release adds configurable menu history and clearer update result icons. The protected collector, event parser, CSV schema, notification content and recovery policy are unchanged.
+
+## Completed checks
+
+- Universal arm64 + x86_64 compilation passed with strict nested signature verification.
+- Installer checks accepted the staged universal helper and rejected a different approved hash.
+- Local documentation links and whitespace checks passed.
+- Ten core groups passed, including sensor/event filters applied before the five-row limit, separate First seen classification, empty selections, saved preferences independent of recording settings, and AM/PM timestamp formatting.
+- Nine update-check groups passed. Successful, available, absent-release, offline, pending and canceled results are distinct; no failed or canceled request can display the up-to-date state. Existing schedules, persistence and stale-response tests also passed.
+- Eight recovery-policy groups and nine actual-AppModel anonymous-XPC integration checks passed. The integration harness uses a fake collector and temporary files, never the installed protected reader.
+- The menu views were visually inspected in light and dark appearances with sample history. Five rows displayed app names, sensors, event labels, date and AM/PM time; the compact control, All activity link and Settings gear fit without clipping.
+- In the native preview, the gear opened Settings directly. Excluding Camera from menu history backfilled the five rows from older matching events, including First seen; the full activity viewer still showed all seven samples. All activity returned to the Activity tab after Settings.
+- Offline UI fixtures displayed the green success checkmark, teal update arrow and orange failure warning without making network requests.
+
+## Limits
+
+No new live sensor, overnight sleep, reboot, Intel execution or second-Mac installation test is claimed for these presentation changes. Existing macOS log-source and local-signing limitations still apply. This build remains unnotarized, and its changed app identity needs administrator approval when installed.
+
+# Historical validation — Privacy Watch 1.5.0
 
 Built on Apple Silicon/macOS 27 using Swift 6.4 Command Line Tools. This release adds optional update checks in the normal user-session app. Collector behavior, event parsing, CSV schema, notifications and logging recovery are unchanged.
 

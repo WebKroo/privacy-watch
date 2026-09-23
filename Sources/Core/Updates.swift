@@ -112,6 +112,8 @@ final class GitHubReleaseClient: NSObject, URLSessionTaskDelegate, @unchecked Se
     }
 }
 
+enum UpdateCheckResult { case upToDate, updateAvailable, noPublishedRelease }
+
 @MainActor final class UpdateController: ObservableObject {
     @Published var automaticChecks: Bool {
         didSet {
@@ -128,6 +130,7 @@ final class GitHubReleaseClient: NSObject, URLSessionTaskDelegate, @unchecked Se
     @Published private(set) var lastChecked: Date?
     @Published private(set) var message = "Check GitHub for a newer release."
     @Published private(set) var checkFailed = false
+    @Published private(set) var result: UpdateCheckResult?
     @Published private(set) var nextCheck: Date?
     let installedVersion: String
     let allowsChecks: Bool
@@ -155,6 +158,7 @@ final class GitHubReleaseClient: NSObject, URLSessionTaskDelegate, @unchecked Se
         if let tag = defaults.string(forKey: "updates.availableTag"), let release = PublishedRelease(tag: tag),
            let installed = ReleaseVersion(installedVersion), release.version > installed {
             availableRelease = release
+            result = .updateAvailable
             message = "Version \(release.version.description) is available."
         } else { defaults.removeObject(forKey: "updates.availableTag") }
         if !allowsChecks { message = "Update checks are disabled in preview." }
@@ -168,11 +172,11 @@ final class GitHubReleaseClient: NSObject, URLSessionTaskDelegate, @unchecked Se
     func check(manual: Bool = true) {
         guard allowsChecks, request == nil, manual || automaticChecks else { return }
         guard let installed = ReleaseVersion(installedVersion) else {
-            message = "The installed version could not be read."; checkFailed = true; return
+            message = "The installed version could not be read."; checkFailed = true; result = nil; return
         }
         timer?.invalidate(); timer = nil
         lastAttempt = now(); defaults.set(lastAttempt, forKey: "updates.lastAttempt")
-        isChecking = true; checkFailed = false; message = "Checking GitHub…"
+        isChecking = true; checkFailed = false; result = nil; message = "Checking GitHub…"
         automaticRequest = !manual
         let token = UUID(); requestID = token
         request = Task { [weak self, fetch] in
@@ -183,15 +187,17 @@ final class GitHubReleaseClient: NSObject, URLSessionTaskDelegate, @unchecked Se
                 self.lastChecked = self.now(); self.defaults.set(self.lastChecked, forKey: "updates.lastChecked")
                 if let release, release.version > installed {
                     self.availableRelease = release
+                    self.result = .updateAvailable
                     self.defaults.set(release.tag, forKey: "updates.availableTag")
                     self.message = "Version \(release.version.description) is available."
                 } else {
                     self.availableRelease = nil; self.defaults.removeObject(forKey: "updates.availableTag")
                     self.message = release == nil ? "No published release is available yet." : "You're up to date."
+                    self.result = release == nil ? .noPublishedRelease : .upToDate
                 }
             } catch {
                 guard let self, self.requestID == token else { return }
-                self.checkFailed = true
+                self.checkFailed = true; self.result = nil
                 self.message = (error as? ReleaseCheckError)?.localizedDescription ?? "Couldn't reach GitHub. Check your connection and try again."
             }
             guard let self, self.requestID == token else { return }
@@ -200,7 +206,7 @@ final class GitHubReleaseClient: NSObject, URLSessionTaskDelegate, @unchecked Se
     }
     private func cancelRequest() {
         requestID = UUID(); request?.cancel(); request = nil; isChecking = false; automaticRequest = false
-        message = "Automatic check canceled. You can still check manually."; checkFailed = false
+        message = "Automatic check canceled. You can still check manually."; checkFailed = false; result = nil
     }
     private func schedule() {
         timer?.invalidate(); timer = nil; nextCheck = nil

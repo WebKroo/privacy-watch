@@ -20,7 +20,7 @@ Choose a log folder and open its CSV in your preferred spreadsheet app. Exact so
 
 ## Keep the interface as quiet as you prefer
 
-The shield panel puts status, Pause/Resume, Activity & Settings and Quit within reach. Closing the main window keeps logging and hides the Dock icon by default. The shield can also be hidden. Opening Privacy Watch from Applications restores the activity window and standard menus. Window size and position are remembered.
+The shield panel shows the five newest matching events with application names, sensor labels and AM/PM times. Choose which sensors and Started, Stopped or First seen events appear under Settings → Menu bar history, independently of what you record. A compact Pause/Resume button, All activity, a Settings gear and Quit keep the controls within reach. Closing the main window keeps logging and hides the Dock icon by default. The shield can also be hidden. Opening Privacy Watch from Applications restores the activity window and standard menus. Window size and position are remembered.
 
 ## Start and stop predictably
 
@@ -39,3 +39,5 @@ See [coverage limits](PRIVACY.md#coverage-and-limits) and [verification steps](T
 ## Choose when to check for updates
 
 Keep track of new versions without visiting GitHub repeatedly. Enable daily, weekly or monthly release checks, or leave them off and use Check for Updates when convenient. Privacy Watch shows available releases with a download link, while you decide when to install. Offline checks do not interrupt sensor logging, and activity history is never included in update requests.
+
+A green checkmark confirms a successful up-to-date result. A teal download arrow marks a new release; an orange warning identifies a failed check.

@@ -72,14 +72,18 @@ import Foundation
                                           now: { january }, calendar: calendar, fetch: { calls += 1; return PublishedRelease(tag: "v1.10.0") })
         controller.start(); controller.checkIfDue()
         expect(!controller.automaticChecks && controller.frequency == .weekly && calls == 0, "Offline default")
+        expect(controller.result == nil, "No success icon before checking")
         controller.check(); controller.check()
         await waitFor { !controller.isChecking }
         expect(calls == 1 && controller.availableRelease?.version == ReleaseVersion("1.10.0"), "Manual check while off; no duplicate request")
+        expect(controller.result == .updateAvailable, "New release uses update icon")
         expect(controller.lastChecked == january && controller.nextCheck == nil, "Manual success date; no automatic timer")
         let restored = UpdateController(defaults: defaults, installedVersion: "1.5.0", timersEnabled: false)
         expect(restored.availableRelease == controller.availableRelease, "Known update survives restart")
+        expect(restored.result == .updateAvailable, "Restored update keeps its icon")
         let upgraded = UpdateController(defaults: defaults, installedVersion: "1.10.0", timersEnabled: false)
         expect(upgraded.availableRelease == nil, "Installed update clears banner")
+        expect(upgraded.result == nil, "Upgrade doesn't invent a successful check")
         controller.shutDown(); restored.shutDown(); upgraded.shutDown()
         print("PASS manual checks, concurrent-click suppression and persisted update state")
 
@@ -92,6 +96,7 @@ import Foundation
         automatic.start(); await waitFor { !automatic.isChecking }
         automatic.checkIfDue(); expect(automaticCalls == 1, "No repeated check within interval")
         expect(automatic.availableRelease == nil && automatic.message == "You're up to date.", "Equal version")
+        expect(automatic.result == .upToDate, "Successful check uses green checkmark")
         time = january.addingTimeInterval(2 * 86_400)
         automatic.checkIfDue(); await waitFor { !automatic.isChecking }
         expect(automaticCalls == 2, "Check after missed day/wake")
@@ -110,6 +115,7 @@ import Foundation
         offline.start(); await waitFor { !offline.isChecking }
         offline.checkIfDue()
         expect(offline.checkFailed && offline.lastChecked == nil && offlineCalls == 1, "Failure is not successful check; no retry loop")
+        expect(offline.result == nil, "Offline failure cannot show success")
         offline.check(); await waitFor { !offline.isChecking }
         expect(offlineCalls == 2, "Manual retry after network failure")
         offline.shutDown()
@@ -120,8 +126,10 @@ import Foundation
         let cancel = UpdateController(defaults: cancelDefaults, installedVersion: "1.5.0", timersEnabled: false,
                                       fetch: { try await pending.fetch() })
         cancel.start(); await waitFor { pending.replies.count == 1 }
+        expect(cancel.result == nil, "No success while checking")
         cancel.automaticChecks = false
         expect(!cancel.isChecking && cancel.nextCheck == nil, "Turning off cancels automatic request")
+        expect(cancel.result == nil, "Cancellation cannot show success")
         cancel.check(); await waitFor { pending.replies.count == 2 }
         pending.replies[0].resume(returning: PublishedRelease(tag: "v9.0.0"))
         await Task.yield()
@@ -141,10 +149,16 @@ import Foundation
         preview.shutDown()
         print("PASS preview isolation")
 
+        let noRelease = UpdateController(defaults: settings(), installedVersion: "1.5.0", timersEnabled: false, fetch: { nil })
+        noRelease.check(); await waitFor { !noRelease.isChecking }
+        expect(noRelease.result == .noPublishedRelease && !noRelease.checkFailed, "No release is information, not an up-to-date checkmark")
+        noRelease.shutDown()
+        print("PASS no-release result stays distinct from up-to-date")
+
         if CommandLine.arguments.contains("--live") {
             let release = try await GitHubReleaseClient().latest()
             print("PASS live GitHub request: \(release?.tag ?? "no release")")
         }
-        print("All 8 update-check groups passed.")
+        print("All 9 update-check groups passed.")
     }
 }

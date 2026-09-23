@@ -3,6 +3,10 @@
 
 import SwiftUI
 
+private func sensorColor(_ sensor: Sensor) -> Color {
+    switch sensor { case .mic: return .orange; case .cam: return .green; case .scr: return .blue; case .loc: return .purple }
+}
+
 struct ShieldMark: View {
     var size: CGFloat = 46
     var body: some View {
@@ -32,13 +36,19 @@ struct StatusPill: View {
 }
 struct LoggingButton: View {
     @ObservedObject var model: AppModel
-    var fullWidth = false
+    var compact = false
+    private var title: String {
+        if model.busy { return compact ? "Working…" : model.status }
+        if model.loggingRequested { return compact ? "Pause" : "Pause Logging" }
+        if compact { return model.startTitle == "Resume Logging" ? "Resume" : "Set Up…" }
+        return model.startTitle
+    }
     var body: some View {
         Button { model.loggingRequested ? model.stop { _ in } : model.start() } label: {
-            Label(model.busy ? model.status : (model.loggingRequested ? "Pause Logging" : model.startTitle),
-                  systemImage: model.loggingRequested ? "pause.fill" : "play.fill")
-                .frame(maxWidth: fullWidth ? .infinity : nil).padding(.vertical, fullWidth ? 3 : 0)
+            Label(title, systemImage: model.loggingRequested ? "pause.fill" : "play.fill")
         }.disabled(model.busy || model.preview)
+            .help(model.loggingRequested ? "Pause logging" : model.startTitle)
+            .accessibilityLabel(model.loggingRequested ? "Pause logging" : model.startTitle)
     }
 }
 struct PanelView: View {
@@ -46,12 +56,13 @@ struct PanelView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(spacing: 10) {
-                ShieldMark(size: 36)
+                ShieldMark(size: 32)
                 VStack(alignment: .leading, spacing: 4) {
                     Text("Privacy Watch").font(.system(size: 14, weight: .semibold))
                     StatusLabel(model: model).foregroundStyle(.secondary)
                 }
                 Spacer()
+                LoggingButton(model: model, compact: true).controlSize(.small).buttonStyle(.bordered)
             }
             if model.issue != nil {
                 Button { model.showActivity() } label: {
@@ -59,18 +70,76 @@ struct PanelView: View {
                         .font(.caption).frame(maxWidth: .infinity, alignment: .leading)
                 }.foregroundStyle(.orange).buttonStyle(.borderless)
             }
-            LoggingButton(model: model, fullWidth: true)
-                .buttonStyle(.borderedProminent).tint(Color(red: 0.06, green: 0.46, blue: 0.44))
             UpdateNotice(updates: model.updates, compact: true)
             Divider()
+            recentActivity
+            Divider()
             HStack(spacing: 12) {
-                Button("Activity & Settings…", systemImage: "list.bullet.rectangle") { model.showActivity() }
-                    .help("Open activity history and settings")
+                Button("All activity", systemImage: "list.bullet.rectangle") { model.showAllActivity() }
+                    .help("Open the full activity viewer")
                 Spacer()
+                Button { model.showSettings() } label: {
+                    Image(systemName: "gearshape").font(.system(size: 13)).frame(width: 24, height: 22)
+                }.help("Settings").accessibilityLabel("Settings")
                 Button("Quit") { model.quit() }.disabled(model.busy)
                     .help("Quit Privacy Watch and stop logging").accessibilityLabel("Quit Privacy Watch and stop logging")
             }.font(.system(size: 12)).controlSize(.small).buttonStyle(.borderless).padding(.vertical, 2)
-        }.padding(16).frame(width: 320)
+        }.padding(16).frame(width: 340)
+    }
+    private var recentActivity: some View {
+        let events = model.menuEvents
+        return VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                Text("Recent activity").font(.system(size: 11, weight: .semibold))
+                Spacer()
+                Text("Latest 5").font(.system(size: 10)).foregroundStyle(.secondary)
+                    .help("The five newest events matching your Menu bar history settings")
+            }.padding(.bottom, 2)
+            if events.isEmpty {
+                VStack(spacing: 7) {
+                    Image(systemName: "clock").font(.title3).foregroundStyle(.tertiary)
+                    Text(model.menuHistory.hasSelection ? "No matching activity yet" : "History is hidden")
+                        .font(.system(size: 12, weight: .medium))
+                    Text(model.menuHistory.hasSelection ? "Recorded events that match your settings will appear here." : "Choose sensors and event types in Settings to show recent activity.")
+                        .font(.caption).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                }.frame(maxWidth: .infinity).padding(.vertical, 16).padding(.horizontal, 16)
+            } else {
+                VStack(spacing: 0) {
+                    ForEach(events) { event in
+                        MenuHistoryRow(event: event)
+                        if event.id != events.last?.id { Divider().padding(.leading, 36) }
+                    }
+                }
+            }
+        }
+    }
+}
+private struct MenuHistoryRow: View {
+    let event: SensorEvent
+    private var appName: String { event.appName.isEmpty ? event.bundleID : event.appName }
+    var body: some View {
+        HStack(spacing: 9) {
+            Image(systemName: event.sensor.symbol).font(.system(size: 12, weight: .medium))
+                .foregroundStyle(sensorColor(event.sensor)).frame(width: 27, height: 29)
+                .background(sensorColor(event.sensor).opacity(0.10), in: RoundedRectangle(cornerRadius: 6))
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 4) {
+                HStack(spacing: 8) {
+                    Text(appName).font(.system(size: 12, weight: .medium)).lineLimit(1).truncationMode(.middle)
+                    Spacer(minLength: 0)
+                    Text(NotificationTime.menuClock(event.timestamp)).font(.system(size: 10)).monospacedDigit()
+                        .foregroundStyle(.secondary).lineLimit(1).fixedSize()
+                }
+                HStack(spacing: 6) {
+                    Text("\(event.sensor.title) · \(MenuEventKind(event).title)").lineLimit(1)
+                    Spacer(minLength: 0)
+                    Text(NotificationTime.menuDate(event.timestamp)).lineLimit(1).fixedSize()
+                }.font(.system(size: 10)).foregroundStyle(.secondary)
+            }
+        }.padding(.vertical, 8)
+            .help("\(appName) · \(event.bundleID)\n\(event.sensor.title) · \(MenuEventKind(event).title)\n\(event.timestamp)" + (event.observation == "first-observed" ? "\nAlready active when first observed; the actual start time may be earlier." : ""))
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("\(appName), \(event.sensor.title), \(MenuEventKind(event).title), \(NotificationTime.display(event.timestamp))")
     }
 }
 final class ActivityViewState: ObservableObject {
@@ -212,6 +281,26 @@ struct ActivityView: View {
                 Toggle("Keep Dock icon when window is closed", isOn: $model.showDockIcon)
                 Text("Closing the window keeps logging in the background. Open Privacy Watch from Applications to return, even with both icons hidden. Quit stops logging.").font(.caption).foregroundStyle(.secondary)
             }
+            Section("Menu bar history") {
+                Text("Show the five newest matching events in the shield menu.").font(.callout)
+                LazyVGrid(columns: [GridItem(.flexible(), alignment: .leading), GridItem(.flexible(), alignment: .leading)], alignment: .leading, spacing: 10) {
+                    ForEach(Sensor.allCases) { sensor in
+                        Toggle(isOn: Binding(get: { model.menuHistory.sensors.contains(sensor) }, set: {
+                            if $0 { model.menuHistory.sensors.insert(sensor) } else { model.menuHistory.sensors.remove(sensor) }
+                        })) { Label(sensor.title, systemImage: sensor.symbol) }
+                    }
+                }.toggleStyle(.checkbox).padding(.vertical, 4)
+                HStack(spacing: 20) {
+                    ForEach(MenuEventKind.allCases) { kind in
+                        Toggle(kind.title, isOn: Binding(get: { model.menuHistory.kinds.contains(kind) }, set: {
+                            if $0 { model.menuHistory.kinds.insert(kind) } else { model.menuHistory.kinds.remove(kind) }
+                        }))
+                    }
+                    Spacer()
+                }.toggleStyle(.checkbox)
+                Text("These filters only change the menu history. Recording and notifications use their own settings below. “First seen” means an app was already using a sensor when logging observed it; its actual start time may be earlier.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
             Section("Startup") {
                 Toggle("Start logging automatically when the app opens", isOn: $model.startLoggingOnLaunch)
                 Text("Add Privacy Watch to macOS Open at Login to start after sign-in. This setting applies on the next launch; Pause and Quit stop the current session.").font(.caption).foregroundStyle(.secondary)
@@ -264,9 +353,6 @@ struct ActivityView: View {
             if !model.preview { model.notifications.refreshAuthorizationStatus() }
         }
     }
-    func sensorColor(_ sensor: Sensor) -> Color {
-        switch sensor { case .mic: return .orange; case .cam: return .green; case .scr: return .blue; case .loc: return .purple }
-    }
 }
 
 struct UpdateSettings: View {
@@ -285,9 +371,8 @@ struct UpdateSettings: View {
                 Button(updates.isChecking ? "Checking…" : "Check for Updates") { updates.check() }
                     .disabled(updates.isChecking || !updates.allowsChecks)
             }
-            HStack {
-                Text(updates.message).foregroundStyle(updates.checkFailed ? Color.orange : Color.secondary)
-                    .textSelection(.enabled)
+            HStack(spacing: 7) {
+                UpdateResultLabel(updates: updates)
                 Spacer()
                 if let release = updates.availableRelease {
                     Link("View Release & Download…", destination: release.pageURL)
@@ -307,13 +392,41 @@ struct UpdateSettings: View {
     }
 }
 
+struct UpdateResultLabel: View {
+    @ObservedObject var updates: UpdateController
+    private var symbol: String {
+        if updates.checkFailed { return "exclamationmark.triangle.fill" }
+        switch updates.result {
+        case .upToDate: return "checkmark.circle.fill"
+        case .updateAvailable: return "arrow.down.circle.fill"
+        case .noPublishedRelease, nil: return "info.circle"
+        }
+    }
+    private var color: Color {
+        if updates.checkFailed { return .orange }
+        switch updates.result {
+        case .upToDate: return .green
+        case .updateAvailable: return .teal
+        case .noPublishedRelease, nil: return .secondary
+        }
+    }
+    var body: some View {
+        Label {
+            Text(updates.message).foregroundStyle(updates.checkFailed ? Color.orange : Color.secondary)
+                .textSelection(.enabled).fixedSize(horizontal: false, vertical: true)
+        } icon: {
+            if !updates.isChecking { Image(systemName: symbol).foregroundStyle(color).accessibilityHidden(true) }
+        }.accessibilityElement(children: .ignore).accessibilityLabel(updates.message)
+    }
+}
+
 struct UpdateNotice: View {
     @ObservedObject var updates: UpdateController
     var compact = false
     var body: some View {
         if let release = updates.availableRelease {
             HStack(spacing: 8) {
-                Image(systemName: "arrow.down.circle").foregroundStyle(.teal)
+                Image(systemName: "arrow.down.circle.fill").foregroundStyle(.teal).accessibilityHidden(true)
                 if compact {
                     Link("Version \(release.version.description) available…", destination: release.pageURL)
                         .font(.caption)

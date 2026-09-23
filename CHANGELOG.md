@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.6.0 — Recent activity in the menu
+
+The shield panel now shows the five newest events matching your Menu bar history settings, with the application, sensor, event, local AM/PM time and date. Choose sensors and Started, Stopped or First seen events independently of recording and notifications. Filters persist across launches and apply before the five-item limit. First seen remains distinct from a confirmed start.
+
+Pause/Resume is a compact button beside the status. All activity opens the activity tab directly, and a separate gear opens Settings. Quit continues to stop logging before exiting. Update results now show a green checkmark when up to date, a teal download arrow when a new release is found and an orange warning if a check fails.
+
+The collector, saved history and recording preferences are unchanged. Updating this locally signed build requires one administrator approval for its new app identity. This free build remains unnotarized; follow the first-launch steps in the installation guide.
+
 ## 1.5.0 — Optional GitHub update checks
 
 Adds an Updates section with an automatic-check switch, daily/weekly/monthly frequency, installed version, last successful check, next check and a Check for Updates button. A matching command is available in the Privacy Watch application menu. New releases appear in the activity window and menu panel with a link to their GitHub release and download.

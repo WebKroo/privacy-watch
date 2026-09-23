@@ -32,6 +32,9 @@ func testNotificationClock() {
     XCTAssertEqual(NotificationTime.display("2026-09-18 12:00:00"), "2026-09-18 12:00:00 PM")
     XCTAssertEqual(NotificationTime.display("2026-09-19 01:46:08.123456+0000"), "2026-09-18 9:46:08 PM")
     XCTAssertEqual(NotificationTime.display("unknown"), "unknown")
+    XCTAssertEqual(NotificationTime.menuClock("2026-09-19 01:46:08.123456+0000"), "9:46:08 PM")
+    XCTAssertEqual(NotificationTime.menuClock("2026-09-18 00:00:00"), "12:00:00 AM")
+    XCTAssertEqual(NotificationTime.menuClock("unknown"), "unknown")
 }
 let suite = CoreTests()
 let tests: [(String, () throws -> Void)] = [
@@ -42,7 +45,9 @@ let tests: [(String, () throws -> Void)] = [
     ("CSV/backup persistence, reload, permissions", suite.testCSVAppendBackupAndReload),
     ("legacy history preservation", suite.testLegacyCSVIsPreserved),
     ("symbolic and hard link rejection", suite.testSymlinksAndHardlinksRejected),
-    ("12-hour AM/PM, midnight, noon and source timezone", testNotificationClock)
+    ("12-hour AM/PM, midnight, noon and source timezone", testNotificationClock),
+    ("menu history filters before five-item limit; first seen and empty selections", suite.testMenuHistoryFiltersBeforeLimitingAndSeparatesFirstSeen),
+    ("menu history preferences persist separately from recording", suite.testMenuHistoryPreferencesPreserveEmptyChoicesAndRecordingSettings)
 ]
 for (name, run) in tests {
     let before = failures

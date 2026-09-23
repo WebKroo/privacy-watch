@@ -52,6 +52,10 @@ Explicit Pause/Quit clears intent before asynchronous cleanup. Approval, signatu
 
 Apple references: [NSXPC signing requirements](https://developer.apple.com/documentation/foundation/nsxpcconnection/setcodesigningrequirement(_:)), [SMAppService](https://developer.apple.com/documentation/servicemanagement/smappservice), [workspace sleep](https://developer.apple.com/documentation/appkit/nsworkspace/willsleepnotification), [workspace wake](https://developer.apple.com/documentation/appkit/nsworkspace/didwakenotification), [uptime excludes sleep](https://developer.apple.com/documentation/dispatch/dispatchtime/uptimenanoseconds).
 
+## Menu history
+
+`Sources/Core/MenuHistory.swift` filters the app's newest-first in-memory history and returns the first five matches. Sensor and event-kind preferences persist under separate `menuHistory.*` keys; recording and notifications never read them. `first-observed` is its own display/filter category rather than a confirmed start. The menu uses the same bounded history as the activity viewer; it does not read extra CSV data, request new collector permissions or fetch application icons from the network.
+
 ## Update checks
 
 `Sources/Core/Updates.swift` contains numeric stable-version comparison, calendar scheduling, a bounded GitHub release client and an observable update controller. `AppModel` owns the controller; checks start independently of logging and re-evaluate on wake. A one-shot timer re-evaluates at least hourly while automatic checks are enabled, so clock changes do not leave a long-lived timer stranded. Preferences and timestamps persist across launches. Failed attempts count toward the schedule to avoid retry storms, while manual retries remain available.
@@ -59,3 +63,5 @@ Apple references: [NSXPC signing requirements](https://developer.apple.com/docum
 One request may be in flight. Turning automatic checks off cancels an automatic request, and generation checks prevent its delayed result from overwriting a later manual check. Preview mode performs no checks. Network errors do not enter the logging failure or collector recovery paths. The collector binary has no update code.
 
 The fixed endpoint supplies only the stable release tag and draft/prerelease flags. The app constructs a GitHub release-page URL from a strictly validated numeric tag instead of following API-provided links. Opening that page is a user action; downloads and installation remain manual. See the [privacy notes](PRIVACY.md#optional-github-update-checks).
+
+The result state distinguishes up-to-date, update available and no published release. The UI renders a green checkmark only for a successful up-to-date result. Starting a request, canceling or receiving an error clears that result so stale success cannot be shown as the latest outcome.

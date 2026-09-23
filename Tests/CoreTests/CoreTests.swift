@@ -76,4 +76,43 @@ final class CoreTests: XCTestCase {
         try FileManager.default.linkItem(at: target, to: store.csvURL)
         XCTAssertThrowsError(try store.prepare(backup: false))
     }
+    func testMenuHistoryFiltersBeforeLimitingAndSeparatesFirstSeen() {
+        let events = (0..<14).map { index in
+            SensorEvent(timestamp: stamp, sensor: index < 6 ? .cam : .mic,
+                        action: index.isMultiple(of: 2) ? .start : .stop,
+                        bundleID: "com.example.app\(index)", observation: index == 6 ? "first-observed" : "change")
+        }
+        var filter = MenuHistoryFilter()
+        XCTAssertEqual(filter.recentEvents(in: events), Array(events.prefix(5)))
+        filter.sensors = [.mic]
+        XCTAssertEqual(filter.recentEvents(in: events), Array(events[6...10]))
+        filter.kinds = [.started, .stopped]
+        XCTAssertEqual(filter.recentEvents(in: events), Array(events[7...11]))
+        filter.kinds = [.firstSeen]
+        XCTAssertEqual(filter.recentEvents(in: events), [events[6]])
+        filter.kinds = [.started]
+        XCTAssertEqual(filter.recentEvents(in: events), [events[8], events[10], events[12]])
+        filter.kinds = [.stopped]
+        XCTAssertEqual(filter.recentEvents(in: events), [events[7], events[9], events[11], events[13]])
+        filter.sensors = []
+        XCTAssertEqual(filter.recentEvents(in: events), [])
+        XCTAssertTrue(!filter.hasSelection)
+        filter.sensors = [.mic]; filter.kinds = []
+        XCTAssertEqual(filter.recentEvents(in: events), [])
+    }
+    func testMenuHistoryPreferencesPreserveEmptyChoicesAndRecordingSettings() {
+        let suite = "privacy-watch.menu-history-tests.\(UUID())"
+        let defaults = UserDefaults(suiteName: suite)!
+        addTeardownBlock { defaults.removePersistentDomain(forName: suite) }
+        XCTAssertEqual(MenuHistoryFilter(defaults: defaults), MenuHistoryFilter())
+        defaults.set(["cam"], forKey: "sensors")
+        defaults.set(true, forKey: "notifyMic")
+        var filter = MenuHistoryFilter(); filter.sensors = [.mic, .scr]; filter.kinds = [.stopped]
+        filter.save(to: defaults)
+        XCTAssertEqual(MenuHistoryFilter(defaults: defaults), filter)
+        filter.sensors = []; filter.kinds = []; filter.save(to: defaults)
+        XCTAssertEqual(MenuHistoryFilter(defaults: defaults), filter)
+        XCTAssertEqual(defaults.stringArray(forKey: "sensors"), ["cam"])
+        XCTAssertTrue(defaults.bool(forKey: "notifyMic"))
+    }
 }

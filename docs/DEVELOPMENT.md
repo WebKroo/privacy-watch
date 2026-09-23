@@ -2,7 +2,7 @@
 
 ## Requirements
 
-Use macOS with Apple Command Line Tools and a compatible SDK. Version 1.5.0 was built using Swift 6.4 in Swift 5 language mode on Apple Silicon/macOS 27. Full Xcode, a signing team and third-party packages are not required. The deployment target is macOS 14; that target alone does not establish compatibility with Apple's undocumented log source on every OS release.
+Use macOS with Apple Command Line Tools and a compatible SDK. Version 1.6.0 was built using Swift 6.4 in Swift 5 language mode on Apple Silicon/macOS 27. Full Xcode, a signing team and third-party packages are not required. The deployment target is macOS 14; that target alone does not establish compatibility with Apple's undocumented log source on every OS release.
 
 ```sh
 xcode-select --install
@@ -25,8 +25,8 @@ The build creates a universal arm64 + x86_64 app under `${TMPDIR:-/tmp}/PrivacyW
 
 | Suite | What it exercises |
 |---|---|
-| `test-updates.sh` | Version ordering, release validation, calendar schedules, off/manual behavior, offline errors, persisted state, cancellation races and preview isolation. Pass `--live` to additionally check the public GitHub endpoint. |
-| `test.sh` | Parser and set differences, source/timestamp fidelity, CSV safety/storage, link rejection and notification time formatting. |
+| `test-updates.sh` | Version ordering, release validation, calendar schedules, off/manual behavior, offline errors, persisted state, cancellation races, result states and preview isolation. Pass `--live` to additionally check the public GitHub endpoint. |
+| `test.sh` | Parser and set differences, source/timestamp fidelity, CSV safety/storage, link rejection notification/menu time formatting and independent five-event menu filtering/persistence. |
 | `test-recovery.sh` | Awake-time deadlines, sleep, retry limits and user intent. |
 | `test-recovery-integration.sh` | Actual AppModel with an anonymous native XPC fake collector, including wake/cleanup races, stale callbacks, reconnect and stop cancellation. |
 | `test-installer.sh` | Acceptance of the expected locally signed helper and rejection of a different code hash. |

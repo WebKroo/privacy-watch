@@ -24,6 +24,8 @@ final class Receiver: NSObject, EventReceiverProtocol {
     @Published var events: [SensorEvent] = []
     @Published var folder: URL
     @Published var enabled: Set<Sensor>
+    @Published var menuHistory: MenuHistoryFilter { didSet { menuHistory.save(to: defaults) } }
+    var menuEvents: [SensorEvent] { menuHistory.recentEvents(in: events) }
     @Published var notifyMic: Bool { didSet { defaults.set(notifyMic, forKey: "notifyMic") } }
     @Published var notifyCam: Bool { didSet { defaults.set(notifyCam, forKey: "notifyCam") } }
     @Published var backup: Bool { didSet { defaults.set(backup, forKey: "backup") } }
@@ -66,6 +68,7 @@ final class Receiver: NSObject, EventReceiverProtocol {
         updates = UpdateController(defaults: defaults, allowsChecks: !demo)
         folder = URL(fileURLWithPath: defaults.string(forKey: "folder") ?? NSHomeDirectory() + "/Documents/Logs/Mac Privacy Activity Local", isDirectory: true)
         enabled = Set((defaults.array(forKey: "sensors") as? [String] ?? Sensor.allCases.map(\.rawValue)).compactMap(Sensor.init))
+        menuHistory = MenuHistoryFilter(defaults: defaults)
         notifyMic = defaults.object(forKey: "notifyMic") as? Bool ?? true
         notifyCam = defaults.object(forKey: "notifyCam") as? Bool ?? true
         backup = defaults.bool(forKey: "backup")
@@ -109,6 +112,7 @@ final class Receiver: NSObject, EventReceiverProtocol {
         }
         start()
     }
+    func showAllActivity() { selectedTab = 0; showActivity() }
     func showSettings() {
         selectedTab = 1; showActivity()
         if !preview { notifications.refreshAuthorizationStatus() }
@@ -415,6 +419,8 @@ final class Receiver: NSObject, EventReceiverProtocol {
          SensorEvent(timestamp: "2026-09-18 20:12:08.216030-0400", sensor: .cam, action: .stop, bundleID: "com.apple.FaceTime", appName: "FaceTime"),
          SensorEvent(timestamp: "2026-09-18 20:11:52.044185-0400", sensor: .cam, action: .start, bundleID: "com.apple.FaceTime", appName: "FaceTime"),
          SensorEvent(timestamp: "2026-09-18 20:10:07.340289-0400", sensor: .scr, action: .start, bundleID: "pl.maketheweb.cleanshotx", appName: "CleanShot X"),
-         SensorEvent(timestamp: "2026-09-18 20:08:16.947502-0400", sensor: .loc, action: .stop, bundleID: "com.apple.weather", appName: "Weather")]
+         SensorEvent(timestamp: "2026-09-18 20:08:16.947502-0400", sensor: .loc, action: .stop, bundleID: "com.apple.weather", appName: "Weather"),
+         SensorEvent(timestamp: "2026-09-18 20:07:01.014921-0400", sensor: .loc, action: .start, bundleID: "com.apple.weather", appName: "Weather", observation: "first-observed"),
+         SensorEvent(timestamp: "2026-09-18 20:05:09.441102-0400", sensor: .mic, action: .stop, bundleID: "com.apple.VoiceMemos", appName: "Voice Memos")]
     }
 }

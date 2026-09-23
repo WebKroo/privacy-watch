@@ -4,17 +4,38 @@
 import Foundation
 
 enum NotificationTime {
-    static func display(_ timestamp: String) -> String {
+    static func date(_ timestamp: String) -> Date? {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.isLenient = false
         for pattern in ["yyyy-MM-dd HH:mm:ss.SSSSSSZ", "yyyy-MM-dd HH:mm:ss.SSSZ", "yyyy-MM-dd HH:mm:ssZ", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXXXX"] {
             formatter.dateFormat = pattern
             if let date = formatter.date(from: timestamp) {
-                formatter.dateFormat = "yyyy-MM-dd h:mm:ss a"
-                return formatter.string(from: date)
+                return date
             }
         }
-        return timestamp
+        return nil
+    }
+    static func display(_ timestamp: String) -> String {
+        guard let date = date(timestamp) else { return timestamp }
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd h:mm:ss a"
+        return formatter.string(from: date)
+    }
+    static func menuClock(_ timestamp: String) -> String {
+        guard let date = date(timestamp) else { return timestamp }
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "h:mm:ss a"
+        return formatter.string(from: date)
+    }
+    static func menuDate(_ timestamp: String) -> String {
+        guard let date = date(timestamp) else { return "" }
+        if Calendar.current.isDateInToday(date) { return "Today" }
+        if Calendar.current.isDateInYesterday(date) { return "Yesterday" }
+        let formatter = DateFormatter()
+        formatter.setLocalizedDateFormatFromTemplate(Calendar.current.component(.year, from: date) == Calendar.current.component(.year, from: Date()) ? "MMMd" : "yMMMd")
+        return formatter.string(from: date)
     }
 }
