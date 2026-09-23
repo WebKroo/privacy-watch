@@ -51,7 +51,16 @@ Choose the app to get up and running, or download the source to explore and buil
 
 **Install in three steps**
 
-**If macOS says “Privacy Watch Not Opened”:** this free release has not been notarized by Apple. If you trust this project's download, use **System Settings → Privacy & Security → Open Anyway** for Privacy Watch. BlockBlock users may also see a separate approval request. See the [opening instructions](docs/INSTALLATION.md#if-macos-or-blockblock-stops-the-app-from-opening).
+> [!IMPORTANT]
+> **First launch: “Privacy Watch” Not Opened**
+>
+> This free release has not been notarized by Apple. If you trust this project's download and choose to open it:
+>
+> 1. Click **Done** on the warning to keep the app.
+> 2. Open **System Settings → Privacy & Security**. Scroll the **main pane on the right** down to **Security**, near the bottom of the page.
+> 3. Look for **“Privacy Watch” was blocked to protect your Mac.** Click **Open Anyway** on the right of that message, just above **FileVault**. Confirm **Open** and authenticate if prompted.
+>
+> **Privacy Watch appears in this temporary blocked-app message, not in the lists of Camera, Microphone or other app permissions.** If the message is missing, try opening the app again, click **Done**, then return to this area of Settings. BlockBlock may ask for a separate approval. See the [full opening instructions](docs/INSTALLATION.md#if-macos-or-blockblock-stops-the-app-from-opening).
 
 1. Open the DMG and drag **Privacy Watch.app** onto its **Applications** shortcut. Eject the disk image, then open Privacy Watch from Applications.
 2. Choose **Set Up & Start Logging** and approve the protected-log reader in the macOS administrator dialog.

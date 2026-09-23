@@ -26,11 +26,17 @@ The free release is locally signed but has **not been notarized by Apple**. Down
 
 If you trust this project's download and choose to run it:
 
-1. In the **“Privacy Watch” Not Opened** dialog, choose **Done** to keep the app.
-2. Open **System Settings → Privacy & Security** and scroll to **Security**.
-3. Find the message naming **Privacy Watch**, choose **Open Anyway**, then confirm **Open** and authenticate if macOS asks. This creates an exception for this app. If the button has disappeared, try opening Privacy Watch again and return to Settings.
-4. If **BlockBlock** also reports that Privacy Watch is a **non-notarized process**, review the name and path. For the standard installation, it should name `/Applications/Privacy Watch.app/Contents/MacOS/MacPrivacyActivity`. Choose **Allow** only if you intend to run that copy. This is separate from macOS approval.
-5. Once the app opens, complete **Set Up & Start Logging** below. Its administrator approval authorizes the protected reader and is separate from both opening checks.
+1. In the **“Privacy Watch” Not Opened** dialog, choose **Done** to keep the app. The **Open Anyway** button is on a separate settings page.
+2. Open **System Settings** and select **Privacy & Security** in the left sidebar.
+3. Scroll the **main pane on the right** down to the **Security** heading, near the bottom of the page. Look just above **FileVault**; the exact layout can vary with your macOS version.
+4. Find the temporary message **“Privacy Watch” was blocked to protect your Mac.** Click **Open Anyway** on the right of that message.
+5. Confirm **Open** in the next dialog and use your password or Touch ID if macOS asks. This creates an exception for this app. Enter credentials only in the macOS dialog.
+6. If **BlockBlock** also reports that Privacy Watch is a **non-notarized process**, review the name and path. For the standard installation, it should name `/Applications/Privacy Watch.app/Contents/MacOS/MacPrivacyActivity`. Choose **Allow** only if you intend to run that copy. This is separate from macOS approval.
+7. Once the app opens, complete **Set Up & Start Logging** below. Its administrator approval authorizes the protected reader and is separate from both opening checks.
+
+**Can't find Privacy Watch in Settings?** It appears as a temporary blocked-app message under **Security**, not as a permanent entry in the Camera, Microphone or other permission lists. Try opening the installed app from Applications again, choose **Done** on the warning, then return to Privacy & Security and scroll the main pane down. This approval does not require adding Privacy Watch to Full Disk Access or changing the **Allow applications from** dropdown.
+
+If the same warning returns after you use **Open Anyway**, note whether macOS showed a second **Open** or password/Touch ID prompt. Include that detail when requesting help so we can distinguish a launch block from a failed approval.
 
 BlockBlock's notarization-mode decisions are not saved across reboots or a restart of BlockBlock, so its alert can return even after macOS remembers your exception. Other BlockBlock alerts, such as installing the reader or adding a login item, describe different actions and should be reviewed separately. A managed Mac may prohibit exceptions.
 

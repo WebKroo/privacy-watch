@@ -12,7 +12,15 @@
 4. Choose your sensors, log folder and notifications in Settings. Test a microphone or camera and confirm a fresh activity row.\par
 \par
 \fs28\b First-launch security message\b0\fs24\par
-This free build is locally signed and is not notarized by Apple. If macOS blocks it, and you trust this download, open System Settings > Privacy & Security and use Open Anyway when offered. Then follow the macOS prompts. Some managed Macs do not allow this. Do not disable Gatekeeper.\par
+This free build is locally signed and is not notarized by Apple. If you trust this download and choose to open it:\par
+1. Click Done in the Privacy Watch Not Opened warning to keep the app.\par
+2. Open System Settings > Privacy & Security. Scroll the main pane on the right down to Security, near the bottom of the page.\par
+3. Look for "Privacy Watch was blocked to protect your Mac." Click Open Anyway on the right of that message, just above FileVault. The exact layout can vary with your macOS version.\par
+4. Confirm Open in the next dialog and use your password or Touch ID if macOS asks. Enter credentials only in the macOS dialog.\par
+\par
+Privacy Watch appears in a temporary blocked-app message, not in the Camera, Microphone or other app-permission lists. If the message is missing, open the installed app again, click Done, then return to this area of Settings. You do not need to add Full Disk Access or change Allow applications from.\par
+\par
+BlockBlock users may see a separate non-notarized-process alert. Review the app name and path and choose Allow only if you intend to run that copy. BlockBlock may ask again after reboot. Some managed Macs prohibit exceptions. Keep Gatekeeper and BlockBlock enabled.\par
 \par
 \fs28\b Requirements and startup\b0\fs24\par
 Targets macOS 14 or later, with Apple Silicon and Intel binaries. Runtime testing was on Apple Silicon/macOS 27; other versions and Intel execution remain unverified. An administrator is required for protected-reader setup. Each Mac needs its own approval.\par
