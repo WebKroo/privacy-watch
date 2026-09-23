@@ -6,7 +6,7 @@ import SwiftUI
 import Combine
 import Carbon
 
-@MainActor final class StatusPanelController: NSObject {
+@MainActor final class StatusPanelController: NSObject, NSMenuItemValidation {
     private let model: AppModel
     private var item: NSStatusItem?
     private let popover = NSPopover()
@@ -33,6 +33,7 @@ import Carbon
             let newItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
             newItem.button?.target = self
             newItem.button?.action = #selector(togglePanel(_:))
+            newItem.button?.sendAction(on: [.leftMouseUp, .rightMouseUp])
             item = newItem
             updateIcon(running: model.running, status: model.status)
         } else {
@@ -49,6 +50,12 @@ import Carbon
     }
     @objc private func togglePanel(_ sender: Any?) {
         guard let button = item?.button else { return }
+        if let event = NSApp.currentEvent,
+           event.type == .rightMouseUp || event.modifierFlags.contains(.control) {
+            popover.performClose(sender)
+            makeContextMenu().popUp(positioning: nil, at: NSPoint(x: 0, y: button.bounds.minY), in: button)
+            return
+        }
         if popover.isShown { popover.performClose(sender) }
         else {
             if let view = popover.contentViewController?.view {
@@ -58,6 +65,33 @@ import Carbon
             popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
         }
     }
+    func makeContextMenu() -> NSMenu {
+        let menu = NSMenu(title: "Privacy Watch")
+        func add(_ title: String, symbol: String, action: Selector, help: String) {
+            let item = NSMenuItem(title: title, action: action, keyEquivalent: "")
+            item.target = self
+            item.image = NSImage(systemSymbolName: symbol, accessibilityDescription: nil)
+            item.toolTip = help
+            menu.addItem(item)
+        }
+        add("See activity", symbol: "list.bullet.rectangle", action: #selector(seeActivity(_:)), help: "Open the full activity viewer")
+        add("Settings…", symbol: "gearshape", action: #selector(openSettings(_:)), help: "Open Privacy Watch settings")
+        menu.addItem(.separator())
+        add("Hide icon", symbol: "eye.slash", action: #selector(hideIcon(_:)), help: "Keep logging with the icon hidden. Reopen Privacy Watch from Applications to see activity or restore the icon in Settings.")
+        menu.addItem(.separator())
+        add("Quit Privacy Watch", symbol: "power", action: #selector(quit(_:)), help: "Stop logging and quit Privacy Watch")
+        return menu
+    }
+    func validateMenuItem(_ menuItem: NSMenuItem) -> Bool {
+        menuItem.action != #selector(quit(_:)) || !model.busy
+    }
+    @objc private func seeActivity(_ sender: Any?) { model.showAllActivity() }
+    @objc private func openSettings(_ sender: Any?) { model.showSettings() }
+    @objc private func hideIcon(_ sender: Any?) {
+        // Remove the status item after native menu tracking finishes.
+        DispatchQueue.main.async { [weak self] in self?.model.showMenuBarIcon = false }
+    }
+    @objc private func quit(_ sender: Any?) { model.quit() }
 }
 
 @MainActor final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, NSMenuItemValidation {
@@ -169,7 +203,7 @@ import Carbon
         AppModel.shared.showSettings(); AppModel.shared.updates.check()
     }
     @objc private func openSettings(_ sender: Any?) { AppModel.shared.showSettings() }
-    @objc private func openActivity(_ sender: Any?) { AppModel.shared.selectedTab = 0; AppModel.shared.showActivity() }
+    @objc private func openActivity(_ sender: Any?) { AppModel.shared.showAllActivity() }
     @objc private func openCSV(_ sender: Any?) { AppModel.shared.openCSV() }
     @objc private func showFolder(_ sender: Any?) { AppModel.shared.revealFolder() }
     @objc private func toggleLogging(_ sender: Any?) {

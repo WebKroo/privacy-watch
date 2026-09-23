@@ -2,7 +2,7 @@
 
 ## Requirements
 
-Use macOS with Apple Command Line Tools and a compatible SDK. Version 1.6.0 was built using Swift 6.4 in Swift 5 language mode on Apple Silicon/macOS 27. Full Xcode, a signing team and third-party packages are not required. The deployment target is macOS 14; that target alone does not establish compatibility with Apple's undocumented log source on every OS release.
+Use macOS with Apple Command Line Tools and a compatible SDK. Version 1.6.1 was built using Swift 6.4 in Swift 5 language mode on Apple Silicon/macOS 27. Full Xcode, a signing team and third-party packages are not required. The deployment target is macOS 14; that target alone does not establish compatibility with Apple's undocumented log source on every OS release.
 
 ```sh
 xcode-select --install

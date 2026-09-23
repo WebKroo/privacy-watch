@@ -20,7 +20,7 @@ Choose a log folder and open its CSV in your preferred spreadsheet app. Exact so
 
 ## Keep the interface as quiet as you prefer
 
-The shield panel shows the five newest matching events with application names, sensor labels and AM/PM times. Choose which sensors and Started, Stopped or First seen events appear under Settings → Menu bar history, independently of what you record. A compact Pause/Resume button, All activity, a Settings gear and Quit keep the controls within reach. Closing the main window keeps logging and hides the Dock icon by default. The shield can also be hidden. Opening Privacy Watch from Applications restores the activity window and standard menus. Window size and position are remembered.
+The shield panel shows the five newest matching events with application names, sensor labels and AM/PM times. Choose which sensors and Started, Stopped or First seen events appear under Settings → Menu bar history, independently of what you record. A compact Pause/Resume button, All activity, a Settings gear and Quit keep the controls within reach. Right-click or Control-click the shield for direct access to activity, settings, hiding the icon and quitting. Closing the main window keeps logging and hides the Dock icon by default. The shield can also be hidden. Opening Privacy Watch from Applications restores the activity window and standard menus. Window size and position are remembered.
 
 ## Start and stop predictably
 

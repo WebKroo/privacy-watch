@@ -36,19 +36,19 @@ Choose the app to get up and running, or download the source to explore and buil
 <table>
 <tr>
 <td width="50%" valign="top">
-<a href="https://github.com/WebKroo/privacy-watch/releases/download/v1.6.0/Privacy-Watch-1.6.0.dmg"><img src=".github/assets/download-dmg.svg" width="520" alt="Download the app — Privacy Watch DMG for macOS"></a>
+<a href="https://github.com/WebKroo/privacy-watch/releases/download/v1.6.1/Privacy-Watch-1.6.1.dmg"><img src=".github/assets/download-dmg.svg" width="520" alt="Download the app — Privacy Watch DMG for macOS"></a>
 <p>Ready to install on your Mac. No build tools needed.</p>
-<p><strong><a href="https://github.com/WebKroo/privacy-watch/releases/download/v1.6.0/Privacy-Watch-1.6.0.dmg">Download DMG</a></strong> · <a href="docs/INSTALLATION.md">Installation guide</a></p>
+<p><strong><a href="https://github.com/WebKroo/privacy-watch/releases/download/v1.6.1/Privacy-Watch-1.6.1.dmg">Download DMG</a></strong> · <a href="docs/INSTALLATION.md">Installation guide</a></p>
 </td>
 <td width="50%" valign="top">
-<a href="https://github.com/WebKroo/privacy-watch/releases/download/v1.6.0/Privacy-Watch-1.6.0-source.zip"><img src=".github/assets/download-source.svg" width="520" alt="Explore the source — download the Privacy Watch source ZIP"></a>
+<a href="https://github.com/WebKroo/privacy-watch/releases/download/v1.6.1/Privacy-Watch-1.6.1-source.zip"><img src=".github/assets/download-source.svg" width="520" alt="Explore the source — download the Privacy Watch source ZIP"></a>
 <p>Read the code, make changes or build your own app.</p>
-<p><strong><a href="https://github.com/WebKroo/privacy-watch/releases/download/v1.6.0/Privacy-Watch-1.6.0-source.zip">Download source ZIP</a></strong> · <a href="docs/DEVELOPMENT.md">Build guide</a></p>
+<p><strong><a href="https://github.com/WebKroo/privacy-watch/releases/download/v1.6.1/Privacy-Watch-1.6.1-source.zip">Download source ZIP</a></strong> · <a href="docs/DEVELOPMENT.md">Build guide</a></p>
 </td>
 </tr>
 </table>
 
-[Release notes, app ZIP and checksums](https://github.com/WebKroo/privacy-watch/releases/tag/v1.6.0) · [Browse the source](https://github.com/WebKroo/privacy-watch/tree/v1.6.0)
+[Release notes, app ZIP and checksums](https://github.com/WebKroo/privacy-watch/releases/tag/v1.6.1) · [Browse the source](https://github.com/WebKroo/privacy-watch/tree/v1.6.1)
 
 **Install in three steps**
 
@@ -69,7 +69,7 @@ Choose the app to get up and running, or download the source to explore and buil
 
 For automatic startup after sign-in, add Privacy Watch to macOS **Open at Login** and keep **Start logging automatically when the app opens** enabled. Each receiving Mac needs its own setup approval and notification permission.
 
-**Current version: 1.6.0.** The app targets macOS 14 or later and builds for Apple Silicon and Intel. Runtime behavior was validated on Apple Silicon with macOS 27; other versions and Intel execution still require verification. This free build is locally signed and **not notarized**. Read the [installation guide](docs/INSTALLATION.md) before sharing or installing it.
+**Current version: 1.6.1.** The app targets macOS 14 or later and builds for Apple Silicon and Intel. Runtime behavior was validated on Apple Silicon with macOS 27; other versions and Intel execution still require verification. This free build is locally signed and **not notarized**. Read the [installation guide](docs/INSTALLATION.md) before sharing or installing it.
 
 ## How it works
 

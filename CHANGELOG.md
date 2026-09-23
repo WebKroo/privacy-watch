@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.6.1 — Right-click shield menu
+
+Right-click or Control-click the menu-bar shield for See activity, Settings…, Hide icon and Quit Privacy Watch. A normal click continues to open recent history. Hiding the icon persists across launches and leaves logging running; reopen the app from Applications to restore it in Settings. Quit uses the existing confirmed reader shutdown and is disabled during a busy transition.
+
+Updates continue to use the existing GitHub check and manual download flow. The recording engine, saved history, menu filters and notification settings are unchanged.
+
 ## 1.6.0 — Recent activity in the menu
 
 The shield panel now shows the five newest events matching your Menu bar history settings, with the application, sensor, event, local AM/PM time and date. Choose sensors and Started, Stopped or First seen events independently of recording and notifications. Filters persist across launches and apply before the five-item limit. First seen remains distinct from a confirmed start.

@@ -1,4 +1,21 @@
-# Validation — Privacy Watch 1.6.0
+# Validation — Privacy Watch 1.6.1
+
+This release adds a native right-click/Control-click menu to the status icon. The collector, event parsing, storage, notifications, update checks and recovery logic are unchanged.
+
+## Completed checks
+
+- Universal arm64 + x86_64 build passed with strict nested signature verification.
+- Installer signature checks accepted the staged universal helper and rejected a different approved hash.
+- An isolated AppKit preview with sample data exercised the secondary-click branch and displayed See activity, Settings…, Hide icon and Quit Privacy Watch.
+- The same native menu's Settings command opened the Settings tab; See activity returned to Activity. Hide icon changed the saved visibility preference to off, and the preview's Settings switch restored it. These actions did not change the recording preferences.
+- Source review confirmed that normal clicks retain the existing recent-history panel, Control-click selects the context menu, and Quit uses AppModel's existing termination path with busy-state validation.
+- The user's installed app and protected reader were not replaced or stopped for these checks. The earlier regression-suite results are retained below; those unchanged suites were not rerun for this menu-only change.
+
+## Limits
+
+Native menu actions were exercised in an isolated preview using a test anchor. The installed production status icon, live collector shutdown, Intel execution, overnight behavior and second-Mac installation were not retested. The free release remains locally signed and unnotarized; its updated app identity needs reader approval on installation.
+
+# Historical validation — Privacy Watch 1.6.0
 
 Built on Apple Silicon/macOS 27 using Swift 6.4 Command Line Tools. This release adds configurable menu history and clearer update result icons. The protected collector, event parser, CSV schema, notification content and recovery policy are unchanged.
 
